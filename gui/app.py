@@ -337,7 +337,7 @@ class App(CTk):
 			self.open_toplevel("로그인 정보를 입력하세요.")
 		else:
 			self.add_log("자동화를 시작합니다!", "green")
-			smodin_auto = sa.SmodinAutomation(self.result_list)
+			smodin_auto = sa.SmodinAutomation(self)
 			automation_thread = threading.Thread(target=smodin_auto.run)
 			automation_thread.start()
 		
