@@ -243,10 +243,12 @@ class App(CTk):
 				return
 			task_details = {
 				"selected_method": 1,
-				"obj": self.obj.get()
+				"obj": self.obj.get(),
+				"write_style": self.write_style.get()
 			}
 		else:
 			task_details = {
+				"selected_method": 0,
 				"strength": self.strength.get()
 			}
 
@@ -287,7 +289,6 @@ class App(CTk):
 		for entry in [self.selected_file_entry, self.selected_template_file_entry, self.name, self.repeat_num]:
 			self.clear_entry(entry)
 		self.render_result_list()
-		print(self.result_list)
 
 	def render_result_list(self):
 		# Clear existing items
