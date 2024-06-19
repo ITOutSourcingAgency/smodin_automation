@@ -1,4 +1,5 @@
 import gui.app
+import asyncio
 
 def main():
 	try:
@@ -10,7 +11,7 @@ def main():
 if __name__ == "__main__":
 	try:
 		print("main gogogo")
-		main()
+		asyncio.run(main())
 		print("main clear")
 	except Exception as e:
 		print(f"The error = {e}")
