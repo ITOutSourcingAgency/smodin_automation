@@ -2,8 +2,11 @@ import threading
 import customtkinter
 import tkinter as tk
 import automation.smodin_automation as sa
-from customtkinter import *
 import os, json, time, sys, subprocess
+
+from etc.auth import auth
+from etc import DEV
+from customtkinter import *
 from tkinter import filedialog
 
 def set_file_permissions(file_path, user, permissions):
@@ -193,12 +196,18 @@ class App(CTk):
 		self.repeat_num_label = CTkLabel(self.repeat_num_frame, text="반복 횟수", font=self.my_font)
 		self.repeat_num_label.grid(row=1, column=0, padx=10, pady=10, sticky = 'w')
 
-		self.repeat_num = CTkEntry(self.repeat_num_frame, font = self.my_font, width = 70)
+		validate_command = self.register(self.validate_numeric_input)
+		self.repeat_num = CTkEntry(self.repeat_num_frame, font = self.my_font, width = 70, validate='key', validatecommand=(validate_command, '%P'))
 		self.repeat_num.grid(row=1, column=1, padx=10, pady=10, sticky="w")
 
 		self.add_button = CTkButton(self.repeat_num_frame, text="등록", width = 100)
 		self.add_button.grid(row=0, column=2, rowspan = 2, padx=10, pady=10, sticky = "nsew")
 
+	def validate_numeric_input(self, input_value):
+		if input_value.isdigit() or input_value == "":
+			return True
+		return False
+		
 	def create_login_info(self):
 		self.login_info_frame = CTkFrame(self)
 		self.login_info_frame.grid(row=0, column=2, columnspan = 2, sticky="nswe", padx=10, pady=5)
@@ -336,11 +345,15 @@ class App(CTk):
 			self.open_toplevel("작업을 등록해주세요.")
 		elif not self.id.get() or not self.pw.get():
 			self.open_toplevel("로그인 정보를 입력하세요.")
-		else:
-			self.add_log("자동화를 시작합니다!", "green")
+		elif DEV or auth():
+			self.add_log("사용자가 확인되었습니다.", "#87CEEB")
 			smodin_auto = sa.SmodinAutomation(self)
 			automation_thread = threading.Thread(target=smodin_auto.run)
 			automation_thread.start()
+		else:
+			self.open_toplevel("승인되지 않은 사용자입니다.")
+			time.sleep(5)
+			sys.exit()
 		
 
 	def create_log(self):

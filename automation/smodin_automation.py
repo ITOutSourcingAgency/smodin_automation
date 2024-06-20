@@ -1,4 +1,4 @@
-import time, clipboard, platform, pyperclip
+import time, clipboard, platform, os, sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -34,20 +34,20 @@ class SmodinAutomation:
 
 		try:
 			actions = ActionChains(self.driver)
-
+			self.settings.add_log("로그인을 진행합니다")
 			self.login(actions=actions)
-			print(f'all the settings = {self.settings.result_list}')
-			print()
+
 			for one_setting in self.settings.result_list:
-				print(f'one result list = {one_setting}')
-				print()
+				self.settings.add_log(f"{one_setting['name']} 작업의 자동화를 시작합니다.")
 				self.select_options(actions, one_setting)
 				self.driver.get('https://app.smodin.io/ko')
 
 		except Exception as e:
+			self.settings.add_log("프로그램을 강제 종료 하셨거나 오류가 발생했습니다.", "red")
 			print(f"An error occurred during login: {e}")
 		finally:
-			time.sleep(500)
+			# time.sleep(500)
+			self.settings.add_log("자동화 작업을 종료합니다.", "grey")
 			self.driver.quit()
 
 	def login(self, actions):
@@ -171,7 +171,7 @@ class SmodinAutomation:
 		else:
 			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 
-		for _ in range(one_setting['repeat_num']):
+		for i in range(int(one_setting['repeat_num'])):
 			rewrite_submit_button = WebDriverWait(self.driver, 60).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
 			)
@@ -181,8 +181,55 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[5]/div/div[2]/button[4]'))
 			)
 			result_copy_button.click()
-			
-			with open('/Users/yback/Downloads/sample/결과파일/output.txt', 'w', encoding='utf-8') as file:
-				file.write(pyperclip.paste())
+			self.modify_file_with_template(clipboard.paste(), one_setting, i)
 	
-	# def modify_file_with_template(self):
+	def modify_file_with_template(self, content, one_setting, index):
+		with open(content, 'r', encoding='utf-8') as output_file:
+			output_content = output_file.read()
+		splitted_texts = output_content.split('.')
+		chunks = []
+
+		count = 0
+		tmp = ''
+		for text in splitted_texts:
+			tmp += f'{text}.'
+			count += 1
+			if count % 5 == 0:
+				chunks.append(tmp)
+				tmp = ''
+
+		with open(one_setting['template_file'], 'r', encoding='utf-8') as template_file:
+			template_content = template_file.read()
+
+		first_inquote_idx = template_content.find('<인용구')
+		remaining_chunks = chunks.copy()
+
+		search_start_idx = first_inquote_idx + 1
+		while remaining_chunks:
+			next_inquote_idx = template_content.find('<인용구', search_start_idx)
+			if next_inquote_idx == -1:
+				break
+
+			chunk = remaining_chunks.pop(0)
+
+			template_content = template_content[:next_inquote_idx] + chunk.strip() + '\n\n' + template_content[next_inquote_idx:]
+			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk.strip()))
+		
+		if remaining_chunks:
+			last_placeholder_idx = template_content.rfind('}>')
+			if last_placeholder_idx != -1:
+				template_content = template_content[:last_placeholder_idx+2] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[last_placeholder_idx+2:]
+			else:
+				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
+				
+		output_file_name = os.path.basename(one_setting['selected_file']).replace('.txt', f'_{index}.txt')
+		with open(f'{self.get_script_path()}/srcs/결과파일/{output_file_name}', 'w', encoding='utf-8') as modified_file:
+			modified_file.write(template_content)
+		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
+
+	def get_script_path():
+		if getattr(sys, 'frozen', False):
+			script_path = os.path.dirname(sys.executable)
+		else:
+			script_path = os.path.dirname(os.path.abspath(__file__))
+		return script_path
