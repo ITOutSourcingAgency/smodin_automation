@@ -16,9 +16,9 @@ def set_file_permissions(file_path, user, permissions):
 		print(f"Failed to set permissions for {file_path}. Error: {e}")
 
 def resource_path(relative_path):
-	"""Get the absolute path to the resource, works for dev and for PyInstaller"""
 	base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-	return os.path.join(base_path, relative_path)
+	return os.path.normpath(os.path.join(base_path, relative_path))
+
 
 class App(CTk):
 	def __init__(self):
@@ -33,7 +33,7 @@ class App(CTk):
 		self.geometry('845x575')
 		self.title('Smodin Automation')
 		self.resizable(False, False)
-		self.wm_iconbitmap(resource_path('smodin_img.ico'))
+		self.wm_iconbitmap(resource_path('gui/smodin_img.ico'))
 		set_appearance_mode("dark")
 		self.create_method()
 		self.create_strength()
