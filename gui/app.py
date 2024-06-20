@@ -286,13 +286,15 @@ class App(CTk):
 		task_details.update({
 			"frame": task_frame,
 			"output_language": self.output_language.get(),
-			"selected_file": self.selected_file_entry.get(),
-			"template_file": self.selected_template_file_entry.get(),
+			"selected_file":  os.path.normpath(self.selected_file_entry.get()),
+			"template_file":  os.path.normpath(self.selected_template_file_entry.get()),
 			"name": self.name.get(),
 			"repeat_num": self.repeat_num.get(),
 			"id": self.id.get(),
 			"pw": self.pw.get()
 		})
+		# print(f'수정할 파일 = {os.path.normpath(self.selected_file_entry.get())}')
+		# print(f'템플릿 파일 = {os.path.normpath(self.selected_template_file_entry.get())}')
 
 		self.result_list.append(task_details)
 		for entry in [self.selected_file_entry, self.selected_template_file_entry, self.name, self.repeat_num]:

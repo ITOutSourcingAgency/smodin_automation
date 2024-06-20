@@ -184,11 +184,8 @@ class SmodinAutomation:
 			self.modify_file_with_template(clipboard.paste(), one_setting, i)
 	
 	def modify_file_with_template(self, content, one_setting, index):
-		with open(content, 'r', encoding='utf-8') as output_file:
-			output_content = output_file.read()
-		splitted_texts = output_content.split('.')
+		splitted_texts = content.split('.')
 		chunks = []
-
 		count = 0
 		tmp = ''
 		for text in splitted_texts:
@@ -198,7 +195,7 @@ class SmodinAutomation:
 				chunks.append(tmp)
 				tmp = ''
 
-		with open(one_setting['template_file'], 'r', encoding='utf-8') as template_file:
+		with open(rf'{one_setting["template_file"]}', 'r', encoding='utf-8') as template_file:
 			template_content = template_file.read()
 
 		first_inquote_idx = template_content.find('<인용구')
@@ -214,22 +211,31 @@ class SmodinAutomation:
 
 			template_content = template_content[:next_inquote_idx] + chunk.strip() + '\n\n' + template_content[next_inquote_idx:]
 			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk.strip()))
-		
+
 		if remaining_chunks:
 			last_placeholder_idx = template_content.rfind('}>')
 			if last_placeholder_idx != -1:
 				template_content = template_content[:last_placeholder_idx+2] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[last_placeholder_idx+2:]
 			else:
 				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
-				
-		output_file_name = os.path.basename(one_setting['selected_file']).replace('.txt', f'_{index}.txt')
-		with open(f'{self.get_script_path()}/srcs/결과파일/{output_file_name}', 'w', encoding='utf-8') as modified_file:
+
+		output_file_name = os.path.basename(rf'{one_setting["selected_file"]}').replace('.txt', f'_{index}.txt')
+		print(f'output_file_name = {output_file_name}')
+		output_directory = os.path.join(get_script_path(), 'srcs', '결과파일')
+		if not os.path.exists(output_directory):
+			os.makedirs(output_directory)
+		output_file_path = rf'{os.path.join(output_directory, output_file_name)}'
+
+		print(f'output_file_path = {output_file_path}')
+
+		with open(output_file_path, 'w', encoding='utf-8') as modified_file:
 			modified_file.write(template_content)
 		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
 
-	def get_script_path():
-		if getattr(sys, 'frozen', False):
-			script_path = os.path.dirname(sys.executable)
-		else:
-			script_path = os.path.dirname(os.path.abspath(__file__))
-		return script_path
+@staticmethod
+def get_script_path():
+	if getattr(sys, 'frozen', False):
+		script_path = os.path.dirname(sys.executable)
+	else:
+		script_path = os.path.dirname(os.path.abspath(__file__))
+	return script_path

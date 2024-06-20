@@ -15,7 +15,7 @@ def modify_file_with_template(content):
 			chunks.append(tmp)
 			tmp = ''
 
-	with open('/Users/yback/projects/smodin_automation/srcs/템플릿파일/template.txt', 'r', encoding='utf-8') as template_file:
+	with open(r'C:\Users\yoyob\OneDrive\Desktop\smodin_pro\srcs\템플릿파일\template.txt', 'r', encoding='utf-8') as template_file:
 		template_content = template_file.read()
 
 	first_inquote_idx = template_content.find('<인용구')
@@ -39,8 +39,11 @@ def modify_file_with_template(content):
 		else:
 			template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
 			
-	output_file_name = os.path.basename('/Users/yback/projects/smodin_automation/srcs/수정할파일/file.txt').replace('.txt', f'{search_start_idx}.txt')
-	with open(f'{get_script_path()}/srcs/결과파일/{output_file_name}', 'w', encoding='utf-8') as modified_file:
+	selected_file = r'C:\Users\yoyob\OneDrive\Desktop\smodin_pro\srcs\수정할파일\file.txt'
+	output_file_name = os.path.basename(selected_file).replace('.txt', f'{search_start_idx}.txt')
+	output_file_path = rf'{get_script_path()}\srcs\결과파일\{output_file_name}'
+	print(output_file_path)
+	with open(output_file_path, 'w', encoding='utf-8') as modified_file:
 		modified_file.write(template_content)
 	print("파일 수정 완료")
 
@@ -53,4 +56,4 @@ def get_script_path():
 		script_path = os.path.dirname(os.path.abspath(__file__))
 	return script_path
 
-modify_file_with_template('/Users/yback/projects/smodin_automation/srcs/수정할파일/file.txt')
+modify_file_with_template(r'C:\Users\yoyob\OneDrive\Desktop\smodin_pro\srcs\수정할파일\file.txt')
