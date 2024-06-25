@@ -34,6 +34,7 @@ class App(CTk):
 		self.title('Smodin Automation')
 		self.resizable(False, False)
 		self.wm_iconbitmap(resource_path('gui/smodin_img.ico'))
+		# self.wm_iconbitmap(resource_path('smodin_img.ico'))
 		set_appearance_mode("dark")
 		self.create_method()
 		self.create_strength()

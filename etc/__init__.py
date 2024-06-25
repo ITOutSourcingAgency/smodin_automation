@@ -1,5 +1,3 @@
-DEV = True
-WINDOW_TITLE = '네이버카페포스팅'
-AUTH_NAMESPACE = '네이버블로그제미나이포스팅'
-# AUTH_ID = '전홍민1'
-AUTH_ID = '전홍민2'
+DEV = False
+AUTH_NAMESPACE = '스모딘변환프로그램'
+AUTH_ID = '곽진천1'

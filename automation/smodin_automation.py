@@ -52,14 +52,13 @@ class SmodinAutomation:
 
 	def login(self, actions):
 		self.driver.get('https://app.smodin.io/ko/login')
-		
 		try:
 			main_window = self.driver.current_window_handle
-			google_login_button = WebDriverWait(self.driver, 10).until(
+			google_login_button = WebDriverWait(self.driver, 30).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div/div[3]/div/button'))
 			)
 			google_login_button.click()
-			WebDriverWait(self.driver, 10).until(EC.new_window_is_opened([main_window]))
+			WebDriverWait(self.driver, 30).until(EC.new_window_is_opened([main_window]))
 			all_windows = self.driver.window_handles
 
 			for window in all_windows:
@@ -67,7 +66,7 @@ class SmodinAutomation:
 					self.driver.switch_to.window(window)
 					break
 
-			id_input = WebDriverWait(self.driver, 10).until(
+			id_input = WebDriverWait(self.driver, 30).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[2]/div/div/div[1]/form/span/section/div/div/div[1]/div/div[1]/div/div[1]/input'))
 			)
 			id_input.click()
@@ -89,118 +88,155 @@ class SmodinAutomation:
 			pw_input.click()
 			clipboard.copy(self.settings.pw.get())
 
-			if platform.system() == 'Darwin':  
-				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-			else:
-				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+			# if platform.system() == 'Darwin':  
+			# 	actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+			# else:
+			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 
 			pw_submit_button = WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[3]/div/div[1]/div/div/button'))
 			)
 			pw_submit_button.click()
-			self.driver.switch_to.window(main_window)
 
+			login_window_handles = self.driver.window_handles
+			
+			if len(login_window_handles) > 1:
+				start_time = time.time()
+				max_wait_time = 300  # 최대 대기 시간 (5분)
+			
+				while time.time() - start_time < max_wait_time:
+					tmp_window_handles = self.driver.window_handles
+					if len(tmp_window_handles) == 1:
+						break
+					time.sleep(3)  # 5초마다 윈도우 개수를 확인
+			self.driver.switch_to.window(main_window)
+			time.sleep(10)
+			
 		except Exception as e:
 			print(f"An error occurred during the login process: {e}")
 
 	def select_options(self, actions, one_setting):
-		rewrite_button = WebDriverWait(self.driver, 60).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/div/div[2]/div/div/div[3]/div/div/div[1]/a'))
-		)
-		rewrite_button.click()
+		# rewrite_button = WebDriverWait(self.driver, 60).until(
+		# 		EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/div/div[2]/div/div/div[3]/div/div/div[1]/a'))
+		# )
+		# rewrite_button.click()
+		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
+
 
 		if one_setting['selected_method'] == 0:
 			WebDriverWait(self.driver, 10).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
+				# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
 			).click()
 			match one_setting['strength']:
 				case 1:
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
 					).click()
 				case 2:
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
 					).click()
 				case 3:
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
 					).click()
 				case 4:
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
 					).click()
 		else:
 			WebDriverWait(self.driver, 10).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
+				# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
 			).click()
 			match one_setting['obj']:
 				case '독창성':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
 					).click()
 				case 'AI탐지':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
 					).click()
 				case 'AI(추가의)':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
+						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
 					).click()
 			write_style_input = WebDriverWait(self.driver, 10).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
+				# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
 			)
 			write_style_input.click()
 			clipboard.copy(one_setting['write_style'])
 			
-			if platform.system() == 'Darwin':  
-				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-			else:
-				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+			# if platform.system() == 'Darwin':  
+			# 	actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+			# else:
+			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 		
 		text_input = WebDriverWait(self.driver, 10).until(
-			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
+			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
+			# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
 		)
 		text_input.click()
 
 		with open(one_setting['selected_file'], 'r', encoding='utf-8') as file:
 			clipboard.copy(file.read())
 
-		if platform.system() == 'Darwin':  
-			actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-		else:
-			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+		# if platform.system() == 'Darwin':  
+		# 	actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+		# else:
+		actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 
 		for i in range(int(one_setting['repeat_num'])):
 			rewrite_submit_button = WebDriverWait(self.driver, 60).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
 			)
 			rewrite_submit_button.click()
 			
 			result_copy_button = WebDriverWait(self.driver, 120).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[5]/div/div[2]/button[4]'))
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'))
 			)
 			result_copy_button.click()
 			self.modify_file_with_template(clipboard.paste(), one_setting, i)
 	
 	def modify_file_with_template(self, content, one_setting, index):
 		splitted_texts = content.split('.')
-		chunks = []
-		count = 0
-		tmp = ''
-		for text in splitted_texts:
-			tmp += f'{text}.'
-			count += 1
-			if count % 5 == 0:
-				chunks.append(tmp)
-				tmp = ''
+		total_sentences = len(splitted_texts) - 1
 
 		with open(rf'{one_setting["template_file"]}', 'r', encoding='utf-8') as template_file:
 			template_content = template_file.read()
 
+		inquote_count = template_content.count('<인용구')
+
+		# if inquote_count == 0:
+		# 	raise ValueError("템플릿 파일에 <인용구>가 없습니다.")
+
+		sentences_per_chunk = total_sentences // inquote_count
+
+		chunks = []
+		tmp = ''
+		count = 0
+		for text in splitted_texts:
+			tmp += f'{text}.'
+			count += 1
+			if count % sentences_per_chunk == 0:
+				chunks.append(tmp.strip())
+				tmp = ''
+
+		if tmp:
+			chunks.append(tmp.strip())
+
 		first_inquote_idx = template_content.find('<인용구')
 		remaining_chunks = chunks.copy()
-
 		search_start_idx = first_inquote_idx + 1
 		while remaining_chunks:
 			next_inquote_idx = template_content.find('<인용구', search_start_idx)
@@ -209,8 +245,8 @@ class SmodinAutomation:
 
 			chunk = remaining_chunks.pop(0)
 
-			template_content = template_content[:next_inquote_idx] + chunk.strip() + '\n\n' + template_content[next_inquote_idx:]
-			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk.strip()))
+			template_content = template_content[:next_inquote_idx] + chunk + '\n\n' + template_content[next_inquote_idx:]
+			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk))
 
 		if remaining_chunks:
 			last_placeholder_idx = template_content.rfind('}>')
@@ -219,21 +255,36 @@ class SmodinAutomation:
 			else:
 				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
 
-		output_file_name = os.path.basename(rf'{one_setting["selected_file"]}').replace('.txt', f'_{index}.txt')
-		print(f'output_file_name = {output_file_name}')
+		tmp_index = ''
+		if index == 0:
+			tmp_index = '.txt'
+		else:
+			tmp_index = f'_{index}.txt'		
+
+		output_origin_file_name = os.path.basename(rf'{one_setting["selected_file"]}').replace('.txt', tmp_index)
+		output_origin_directory = os.path.join(get_script_path(), 'srcs', '결과원본파일')
+		if not os.path.exists(output_origin_directory):
+			os.makedirs(output_origin_directory)
+		output_origin_file_path = rf'{os.path.join(output_origin_directory, output_origin_file_name)}'
+
+		with open(output_origin_file_path, 'w', encoding='utf-8') as modified_origin_file:
+			modified_origin_file.write(content)
+		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물의 원본이 {output_origin_file_name}의 이름으로 저장되었습니다.", "green")
+
+		output_file_name = os.path.basename(rf'{one_setting["selected_file"]}').replace('.txt', tmp_index)
 		output_directory = os.path.join(get_script_path(), 'srcs', '결과파일')
 		if not os.path.exists(output_directory):
 			os.makedirs(output_directory)
 		output_file_path = rf'{os.path.join(output_directory, output_file_name)}'
 
-		print(f'output_file_path = {output_file_path}')
-
 		with open(output_file_path, 'w', encoding='utf-8') as modified_file:
 			modified_file.write(template_content)
 		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
 
+
 @staticmethod
 def get_script_path():
+
 	if getattr(sys, 'frozen', False):
 		script_path = os.path.dirname(sys.executable)
 	else:
