@@ -152,10 +152,10 @@ class App(CTk):
 		self.file_label = CTkLabel(self.file_frame, text="수정할 파일 경로", font=self.my_font)
 		self.file_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
-		self.selected_file_entry = CTkEntry(self.file_frame, font=self.my_font, state='readonly', width = 270)
-		self.selected_file_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+		self.selected_files_entry = CTkEntry(self.file_frame, font=self.my_font, state='readonly', width = 270)
+		self.selected_files_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-		self.file_button = CTkButton(self.file_frame, text="파일 선택", command=lambda: self.open_file_dialog(self.selected_file_entry))
+		self.file_button = CTkButton(self.file_frame, text="파일 선택", command=lambda: self.open_files_dialog(self.selected_files_entry))
 		self.file_button.grid(row=0, column=1, padx=10, pady=10)
 
 	def set_template_file_path(self):
@@ -165,14 +165,14 @@ class App(CTk):
 		self.template_file_frame.columnconfigure(1, weight=0)
 		self.template_file_frame.rowconfigure(0, weight=1)
 
-		self.template_file_label = CTkLabel(self.template_file_frame, text="템플릿 파일 경로", font=self.my_font)
+		self.template_file_label = CTkLabel(self.template_file_frame, text="템플릿 폴더 경로", font=self.my_font)
 		self.template_file_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
-		self.selected_template_file_entry = CTkEntry(self.template_file_frame, font=self.my_font, state='readonly', width = 270)
-		self.selected_template_file_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+		self.selected_template_folder_entry = CTkEntry(self.template_file_frame, font=self.my_font, state='readonly', width = 270)
+		self.selected_template_folder_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-		self.template_file_button = CTkButton(self.template_file_frame, text="파일 선택", command=lambda: self.open_file_dialog(self.selected_template_file_entry))
-		self.template_file_button.grid(row=0, column=1, padx=10, pady=10)
+		self.template_folder_button = CTkButton(self.template_file_frame, text="폴더 선택", command=lambda: self.open_folder_dialog(self.selected_template_folder_entry))
+		self.template_folder_button.grid(row=0, column=1, padx=10, pady=10)
 
 	def open_file_dialog(self, entry):
 		file_selected = filedialog.askopenfilename()
@@ -180,6 +180,22 @@ class App(CTk):
 			entry.configure(state='normal')
 			entry.delete(0, 'end')
 			entry.insert(0, file_selected)
+			entry.configure(state='readonly')
+
+	def open_files_dialog(self, entry):
+		files_selected = filedialog.askopenfilenames()
+		if files_selected:
+			entry.configure(state='normal')
+			entry.delete(0, 'end')
+			entry.insert(0, ', '.join(files_selected))
+			entry.configure(state='readonly')
+
+	def open_folder_dialog(self, entry):
+		folder_selected = filedialog.askdirectory()
+		if folder_selected:
+			entry.configure(state='normal')
+			entry.delete(0, 'end')
+			entry.insert(0, folder_selected)
 			entry.configure(state='readonly')
 
 	def create_repeat_num_and_name(self):
@@ -262,11 +278,11 @@ class App(CTk):
 				"strength": self.strength.get()
 			}
 
-		if not self.selected_file_entry.get():
+		if not self.selected_files_entry.get():
 			self.open_toplevel("수정할 파일 경로를 선택해주세요.")
 			return
-		if not self.selected_template_file_entry.get():
-			self.open_toplevel("템플릿 파일 경로를 선택해주세요.")
+		if not self.selected_template_folder_entry.get():
+			self.open_toplevel("템플릿 폴더 경로를 선택해주세요.")
 			return
 		if not self.name.get():
 			self.open_toplevel("작업 이름을 입력해주세요.")
@@ -284,21 +300,22 @@ class App(CTk):
 		delete_button = CTkButton(task_frame, text="삭제", command=lambda: self.delete_task(task_frame), width=20)
 		delete_button.grid(row=0, column=1, padx=0, pady=5, sticky="e")
 
+		selected_files = [os.path.normpath(file.strip()) for file in self.selected_files_entry.get().split(',')]
+		template_folder = os.path.normpath(self.selected_template_folder_entry.get())
+
 		task_details.update({
 			"frame": task_frame,
 			"output_language": self.output_language.get(),
-			"selected_file":  os.path.normpath(self.selected_file_entry.get()),
-			"template_file":  os.path.normpath(self.selected_template_file_entry.get()),
+			"selected_files": selected_files,
+			"template_folder": template_folder,
 			"name": self.name.get(),
 			"repeat_num": self.repeat_num.get(),
 			"id": self.id.get(),
 			"pw": self.pw.get()
 		})
-		# print(f'수정할 파일 = {os.path.normpath(self.selected_file_entry.get())}')
-		# print(f'템플릿 파일 = {os.path.normpath(self.selected_template_file_entry.get())}')
 
 		self.result_list.append(task_details)
-		for entry in [self.selected_file_entry, self.selected_template_file_entry, self.name, self.repeat_num]:
+		for entry in [self.selected_files_entry, self.selected_template_folder_entry, self.name, self.repeat_num]:
 			self.clear_entry(entry)
 		self.render_result_list()
 

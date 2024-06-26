@@ -40,8 +40,9 @@ class SmodinAutomation:
 
 			for one_setting in self.settings.result_list:
 				self.settings.add_log(f"{one_setting['name']} 작업의 자동화를 시작합니다.")
-				self.select_options_free(actions, one_setting)
-				# self.select_options_paid(actions, one_setting)
+				for one_file in one_setting['selected_files']:
+					self.select_options_free(actions, one_setting, one_file)
+					# self.select_options_paid(actions, one_setting, one_file)
 
 				self.driver.get('https://app.smodin.io/ko')
 
@@ -49,7 +50,6 @@ class SmodinAutomation:
 			self.settings.add_log("프로그램을 강제 종료 하셨거나 오류가 발생했습니다.", "red")
 			print(f"An error occurred during login: {e}")
 		finally:
-			# time.sleep(500)
 			self.settings.add_log("자동화 작업을 종료합니다.", "grey")
 			self.driver.quit()
 
@@ -121,7 +121,7 @@ class SmodinAutomation:
 		except Exception as e:
 			print(f"An error occurred during the login process: {e}")
 
-	def select_options_paid(self, actions, one_setting):
+	def select_options_paid(self, actions, one_setting, one_file):
 		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
 
 
@@ -163,23 +163,25 @@ class SmodinAutomation:
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[8]'))
 					).click()
-			write_style_input = WebDriverWait(self.driver, 10).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
-			)
-			write_style_input.click()
-			clipboard.copy(one_setting['write_style'])
-			
-			if platform.system() == 'Darwin':  
-				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-			else:
-				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+					
+			if len(one_setting['write_style']) >= 1:
+				write_style_input = WebDriverWait(self.driver, 10).until(
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
+				)
+				write_style_input.click()
+				clipboard.copy(one_setting['write_style'])
+				
+				if platform.system() == 'Darwin':  
+					actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+				else:
+					actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 		
 		text_input = WebDriverWait(self.driver, 10).until(
 			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
 		)
 		text_input.click()
 
-		with open(one_setting['selected_file'], 'r', encoding='utf-8') as file:
+		with open(one_file, 'r', encoding='utf-8') as file:
 			clipboard.copy(file.read())
 
 		if platform.system() == 'Darwin':  
@@ -197,9 +199,9 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'))
 			)
 			result_copy_button.click()
-			self.modify_file_with_template(clipboard.paste(), one_setting, i)
+			self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
 	
-	def select_options_free(self, actions, one_setting):
+	def select_options_free(self, actions, one_setting, one_file):
 		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
 
 		if one_setting['selected_method'] == 0:
@@ -257,7 +259,7 @@ class SmodinAutomation:
 		)
 		text_input.click()
 
-		with open(one_setting['selected_file'], 'r', encoding='utf-8') as file:
+		with open(one_file, 'r', encoding='utf-8') as file:
 			clipboard.copy(file.read())
 
 		if platform.system() == 'Darwin':  
@@ -275,13 +277,15 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[5]/div/div[2]/button[4]'))
 			)
 			result_copy_button.click()
-			self.modify_file_with_template(clipboard.paste(), one_setting, i)
+			self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
 
-	def modify_file_with_template(self, content, one_setting, index):
+	def modify_file_with_template(self, content, one_setting, index, one_file):
 		splitted_texts = content.split('.')
 		total_sentences = len(splitted_texts) - 1
 
-		with open(rf'{one_setting["template_file"]}', 'r', encoding='utf-8') as template_file:
+		one_file_full_name = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
+
+		with open(rf'{one_file_full_name}', 'r', encoding='utf-8') as template_file:
 			template_content = template_file.read()
 
 		inquote_count = template_content.count('<인용구')
@@ -329,7 +333,7 @@ class SmodinAutomation:
 		else:
 			tmp_index = f'_{index}.txt'		
 
-		output_origin_file_name = os.path.basename(rf'{one_setting["selected_file"]}').replace('.txt', tmp_index)
+		output_origin_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
 		output_origin_directory = os.path.join(get_script_path(), 'srcs', '결과원본파일')
 		if not os.path.exists(output_origin_directory):
 			os.makedirs(output_origin_directory)
@@ -339,7 +343,7 @@ class SmodinAutomation:
 			modified_origin_file.write(content)
 		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물의 원본이 {output_origin_file_name}의 이름으로 저장되었습니다.", "green")
 
-		output_file_name = os.path.basename(rf'{one_setting["selected_file"]}').replace('.txt', tmp_index)
+		output_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
 		output_directory = os.path.join(get_script_path(), 'srcs', '결과파일')
 		if not os.path.exists(output_directory):
 			os.makedirs(output_directory)
