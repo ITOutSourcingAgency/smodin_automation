@@ -21,6 +21,7 @@ class SmodinAutomation:
 		chrome_options.add_argument("--disable-infobars")
 		chrome_options.add_argument("--disable-save-password-bubble")
 		chrome_options.add_argument("--disable-password-manager-reauthentication")
+		chrome_options.add_argument("--incognito")
 
 		self.driver = uc.Chrome(options=chrome_options)
 
@@ -100,9 +101,9 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[3]/div/div[1]/div/div/button'))
 			)
 			pw_submit_button.click()
-			time.sleep(5)
-
 			login_window_handles = self.driver.window_handles
+
+			time.sleep(3)
 
 			if len(login_window_handles) > 1:
 				start_time = time.time()
@@ -152,15 +153,15 @@ class SmodinAutomation:
 			match one_setting['obj']:
 				case '독창성':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[4]'))
 					).click()
 				case 'AI탐지':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[6]'))
 					).click()
 				case 'AI(추가의)':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[8]'))
 					).click()
 			write_style_input = WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
@@ -229,26 +230,27 @@ class SmodinAutomation:
 			match one_setting['obj']:
 				case '독창성':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[4]'))
 					).click()
 				case 'AI탐지':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[6]'))
 					).click()
 				case 'AI(추가의)':
 					WebDriverWait(self.driver, 10).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[8]'))
 					).click()
-			write_style_input = WebDriverWait(self.driver, 10).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
-			)
-			write_style_input.click()
-			clipboard.copy(one_setting['write_style'])
-			
-			if platform.system() == 'Darwin':  
-				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-			else:
-				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+			if len(one_setting['write_style']) >= 1:
+				write_style_input = WebDriverWait(self.driver, 10).until(
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
+				)
+				write_style_input.click()
+				clipboard.copy(one_setting['write_style'])
+				
+				if platform.system() == 'Darwin':  
+					actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+				else:
+					actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 		
 		text_input = WebDriverWait(self.driver, 10).until(
 			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
