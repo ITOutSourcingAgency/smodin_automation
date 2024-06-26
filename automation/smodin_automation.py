@@ -21,7 +21,7 @@ class SmodinAutomation:
 		chrome_options.add_argument("--disable-infobars")
 		chrome_options.add_argument("--disable-save-password-bubble")
 		chrome_options.add_argument("--disable-password-manager-reauthentication")
-		chrome_options.add_argument("--incognito")
+		# chrome_options.add_argument("--incognito")
 
 		self.driver = uc.Chrome(options=chrome_options)
 
