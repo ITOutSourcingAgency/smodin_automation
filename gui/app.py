@@ -33,8 +33,8 @@ class App(CTk):
 		self.geometry('845x575')
 		self.title('Smodin Automation')
 		self.resizable(False, False)
-		self.wm_iconbitmap(resource_path('gui/smodin_img.ico'))
-		# self.wm_iconbitmap(resource_path('smodin_img.ico'))
+		# self.wm_iconbitmap(resource_path('gui/smodin_img.ico'))
+		self.wm_iconbitmap(resource_path('smodin_img.ico'))
 		set_appearance_mode("dark")
 		self.create_method()
 		self.create_strength()
@@ -248,9 +248,9 @@ class App(CTk):
 		repeat_num_width = 5
 
 		if self.selected_method == 1:
-			if not self.write_style.get().strip():
-				self.open_toplevel("작문 스타일을 작성해야 합니다.")
-				return
+			# if not self.write_style.get().strip():
+			# 	self.open_toplevel("작문 스타일을 작성해야 합니다.")
+			# 	return
 			task_details = {
 				"selected_method": 1,
 				"obj": self.obj.get(),

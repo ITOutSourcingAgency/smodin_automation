@@ -1,59 +1,26 @@
-import os, sys
-
 def modify_file_with_template(content):
-	with open(content, 'r', encoding='utf-8') as output_file:
-		output_content = output_file.read()
-	splitted_texts = output_content.split('.')
-	chunks = []
+		splitted_texts = content.split('.')
+		total_sentences = len(splitted_texts) - 1
 
-	count = 0
-	tmp = ''
-	for text in splitted_texts:
-		tmp += f'{text}.'
-		count += 1
-		if count % 5 == 0:
-			chunks.append(tmp)
-			tmp = ''
+		chunks = []
+		tmp = ''
+		count = 0
+		for text in splitted_texts:
+			if len(text.strip()) == 0:
+				continue
+			tmp += f'{text}.'
+			count += 1
+			if count % 3 == 0:
+				chunks.append(tmp.strip())
+				tmp = ''
 
-	with open(r'C:\Users\yoyob\OneDrive\Desktop\smodin_pro\srcs\템플릿파일\template.txt', 'r', encoding='utf-8') as template_file:
-		template_content = template_file.read()
+		if tmp:
+			chunks.append(tmp.strip())
+		print(f'chunks = {chunks}')
 
-	first_inquote_idx = template_content.find('<인용구')
-	remaining_chunks = chunks.copy()
+		chunks = [chunk.replace('..', '.') for chunk in chunks]
+		# print(f'chunks = {chunks}')
 
-	search_start_idx = first_inquote_idx + 1
-	while remaining_chunks:
-		next_inquote_idx = template_content.find('<인용구', search_start_idx)
-		if next_inquote_idx == -1:
-			break
+con = f'안면윤곽은 성형수술을 통해 획기적으로 변화될 수 있는 부위 중 하나이다. 이와 관련하여 얼굴의 전체적인 모양과 비율은 눈, 코, 입과 같은 다른 특징에 따라 달라집니다. 하지만 수술만으로는 드라마틱한 변화를 가져올 수 없습니다. 이러한 요소들이 함께 작용하여 수술 후 얼굴의 조화를 이루기 때문입니다. 수술 후 : 수술 후 안경은 항상 필수품입니다. 칫솔질은 실제로 중요합니다. 그러나 칫솔질하는 동안 치약이 들어가는 것을 방지하기 위해 치약 부위에 절개를 만들지 않고 입의 청결을 유지하는 것이 어려울 수 있습니다. 입을 깨끗하게 유지할 수 있는 방법은 다음과 같습니다. 안면 윤곽 수술 후 적어도 일주일 동안 안경을 착용하는 것을 잊지 마십시오. 나사산이 없는 부위에서만 이를 닦으십시오. 취침 전, 기상 시, 식사 ​​후에는 입을 닫는 것을 잊지 마십시오. 머리 뒤에 약을 놓고 회전할 때마다 입 움직임을 수반하지 않고 자세를 바꾸십시오. 2단계: 당일 수술. 입을 다물기가 어려울 경우 손으로 입을 잡습니다. 병원에서 처방한 구강청정제를 모두 사용한 후 재치료를 받거나 약국에서 리스테린을 구입하여 물과 섞어서 복용하시면 됩니다. 입을 헹군 후에도 아프지 않거나 효과가 없으면 일반 물이나 소금물로 헹구십시오. 이빨 주위를 휘젓습니다. 일주일이 지나면 담당 의사의 지시에 따라 부드럽게 양치질을 시작합니다. 얼굴 외곽선 안쪽을 절개하여 입 안쪽에 절개선을 형성하고, 이를 통해 음식이 들어가 세균이 생존하여 상처 부위에 감염 및 염증이 발생하게 됩니다. 이 고려사항에 주의하세요. 전후 비교시술 : 안면윤곽 수술 후 안경을 착용하면 감염과 염증을 예방할 수 있습니다. 실이 녹을 때까지 수술 부위를 계속 감싸십시오. 감염이나 염증으로 인해 결과가 저하될 수 있습니다. 모든 수술은 수술 시작부터 안경 굽힘 수술 후 최소 일주일까지 사망을 포함하여 심각한 부작용을 초래할 수 있으므로 면밀히 모니터링해야 합니다. 이를 위해서는 모든 실이 녹을 때까지 지속적인 연삭이 필요하며 일반적으로 일주일 이내에 완료됩니다. 다음의 간단한 단계를 통해 자신감 넘치는 미소를 되찾으세요. 취침 전, 잠에서 깰 때, 식사 후에 태워보세요. 더 나은 배출을 위해 입이 아닌 머리를 움직여 입 안의 액체를 부드럽게 휘젓습니다. 입술을 단단히 밀봉하는 것이 어렵다면 손으로 도와주세요. 치실 사용을 피하고 칫솔질에만 집중하세요. 평일에는 병원 지침에 따라 꼼꼼하게 칫솔질을 하세요. 수술 후 첫 주 이후에는 부기를 줄이는 데 도움이 되도록 머리를 심장 높이보다 높게 유지하십시오. 동시에 매일의 의식을 수행하는 동안 자신감을 유지하십시오. 마무리 후 만족. 수술 후 1개월간은 눕거나 머리를 기울이는 자세를 삼가하세요. 수술 후 6시간 동안은 부드러운 음식만 섭취하십시오. 수술 후 2주 이내에는 맵거나 딱딱한 음식을 피하고 2개월 동안은 조심스럽게 드십시오. 3개월 동안 수술 부위에 압력을 가하거나 자극을 주지 않도록 주의하십시오. 수술 후 적절한 수분 수준과 구강 위생을 유지하는 것이 중요합니다. 감염이나 염증을 조장하지 않도록 베개 사용 방법에 유의하십시오.'
 
-		chunk = remaining_chunks.pop(0)
-
-		template_content = template_content[:next_inquote_idx] + chunk.strip() + '\n\n' + template_content[next_inquote_idx:]
-		search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk.strip()))
-	
-	if remaining_chunks:
-		last_placeholder_idx = template_content.rfind('}>')
-		if last_placeholder_idx != -1:
-			template_content = template_content[:last_placeholder_idx+2] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[last_placeholder_idx+2:]
-		else:
-			template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
-			
-	selected_file = r'C:\Users\yoyob\OneDrive\Desktop\smodin_pro\srcs\수정할파일\file.txt'
-	output_file_name = os.path.basename(selected_file).replace('.txt', f'{search_start_idx}.txt')
-	output_file_path = rf'{get_script_path()}\srcs\결과파일\{output_file_name}'
-	print(output_file_path)
-	with open(output_file_path, 'w', encoding='utf-8') as modified_file:
-		modified_file.write(template_content)
-	print("파일 수정 완료")
-
-def get_script_path():
-	if getattr(sys, 'frozen', False):
-		# PyInstaller로 패키징된 경우
-		script_path = os.path.dirname(sys.executable)
-	else:
-		# 스크립트가 실행되는 경우
-		script_path = os.path.dirname(os.path.abspath(__file__))
-	return script_path
-
-modify_file_with_template(r'C:\Users\yoyob\OneDrive\Desktop\smodin_pro\srcs\수정할파일\file.txt')
+modify_file_with_template(con)

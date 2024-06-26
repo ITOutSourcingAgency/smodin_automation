@@ -39,7 +39,9 @@ class SmodinAutomation:
 
 			for one_setting in self.settings.result_list:
 				self.settings.add_log(f"{one_setting['name']} 작업의 자동화를 시작합니다.")
-				self.select_options(actions, one_setting)
+				self.select_options_free(actions, one_setting)
+				# self.select_options_paid(actions, one_setting)
+
 				self.driver.get('https://app.smodin.io/ko')
 
 		except Exception as e:
@@ -88,113 +90,101 @@ class SmodinAutomation:
 			pw_input.click()
 			clipboard.copy(self.settings.pw.get())
 
-			# if platform.system() == 'Darwin':  
-			# 	actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-			# else:
-			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+			if platform.system() == 'Darwin':  
+				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+			else:
+				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+			time.sleep(3)
 
 			pw_submit_button = WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[3]/div/div[1]/div/div/button'))
 			)
 			pw_submit_button.click()
+			time.sleep(5)
 
 			login_window_handles = self.driver.window_handles
-			
+
 			if len(login_window_handles) > 1:
 				start_time = time.time()
-				max_wait_time = 300  # 최대 대기 시간 (5분)
+				max_wait_time = 300
 			
 				while time.time() - start_time < max_wait_time:
 					tmp_window_handles = self.driver.window_handles
 					if len(tmp_window_handles) == 1:
 						break
-					time.sleep(3)  # 5초마다 윈도우 개수를 확인
+					time.sleep(3)
+
 			self.driver.switch_to.window(main_window)
-			time.sleep(10)
+			time.sleep(5)
 			
 		except Exception as e:
 			print(f"An error occurred during the login process: {e}")
 
-	def select_options(self, actions, one_setting):
-		# rewrite_button = WebDriverWait(self.driver, 60).until(
-		# 		EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/div/div[2]/div/div/div[3]/div/div/div[1]/a'))
-		# )
-		# rewrite_button.click()
+	def select_options_paid(self, actions, one_setting):
 		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
 
 
 		if one_setting['selected_method'] == 0:
 			WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
-				# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
 			).click()
 			match one_setting['strength']:
 				case 1:
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
 					).click()
 				case 2:
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
 					).click()
 				case 3:
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
 					).click()
 				case 4:
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
 					).click()
 		else:
 			WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
-				# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
 			).click()
 			match one_setting['obj']:
 				case '독창성':
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
 					).click()
 				case 'AI탐지':
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
 					).click()
 				case 'AI(추가의)':
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
-						# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
 					).click()
 			write_style_input = WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
-				# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
 			)
 			write_style_input.click()
 			clipboard.copy(one_setting['write_style'])
 			
-			# if platform.system() == 'Darwin':  
-			# 	actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-			# else:
-			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+			if platform.system() == 'Darwin':  
+				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+			else:
+				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 		
 		text_input = WebDriverWait(self.driver, 10).until(
 			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
-			# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
 		)
 		text_input.click()
 
 		with open(one_setting['selected_file'], 'r', encoding='utf-8') as file:
 			clipboard.copy(file.read())
 
-		# if platform.system() == 'Darwin':  
-		# 	actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-		# else:
-		actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+		if platform.system() == 'Darwin':  
+			actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+		else:
+			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 
 		for i in range(int(one_setting['repeat_num'])):
 			rewrite_submit_button = WebDriverWait(self.driver, 60).until(
@@ -208,6 +198,83 @@ class SmodinAutomation:
 			result_copy_button.click()
 			self.modify_file_with_template(clipboard.paste(), one_setting, i)
 	
+	def select_options_free(self, actions, one_setting):
+		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
+
+		if one_setting['selected_method'] == 0:
+			WebDriverWait(self.driver, 10).until(
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
+			).click()
+			match one_setting['strength']:
+				case 1:
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
+					).click()
+				case 2:
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
+					).click()
+				case 3:
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
+					).click()
+				case 4:
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
+					).click()
+		else:
+			WebDriverWait(self.driver, 10).until(
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
+			).click()
+			match one_setting['obj']:
+				case '독창성':
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[3]'))
+					).click()
+				case 'AI탐지':
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[5]'))
+					).click()
+				case 'AI(추가의)':
+					WebDriverWait(self.driver, 10).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[7]'))
+					).click()
+			write_style_input = WebDriverWait(self.driver, 10).until(
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
+			)
+			write_style_input.click()
+			clipboard.copy(one_setting['write_style'])
+			
+			if platform.system() == 'Darwin':  
+				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+			else:
+				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+		
+		text_input = WebDriverWait(self.driver, 10).until(
+			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
+		)
+		text_input.click()
+
+		with open(one_setting['selected_file'], 'r', encoding='utf-8') as file:
+			clipboard.copy(file.read())
+
+		if platform.system() == 'Darwin':  
+			actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+		else:
+			actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+
+		for i in range(int(one_setting['repeat_num'])):
+			rewrite_submit_button = WebDriverWait(self.driver, 60).until(
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
+			)
+			rewrite_submit_button.click()
+			
+			result_copy_button = WebDriverWait(self.driver, 120).until(
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[5]/div/div[2]/button[4]'))
+			)
+			result_copy_button.click()
+			self.modify_file_with_template(clipboard.paste(), one_setting, i)
+
 	def modify_file_with_template(self, content, one_setting, index):
 		splitted_texts = content.split('.')
 		total_sentences = len(splitted_texts) - 1
@@ -217,15 +284,14 @@ class SmodinAutomation:
 
 		inquote_count = template_content.count('<인용구')
 
-		# if inquote_count == 0:
-		# 	raise ValueError("템플릿 파일에 <인용구>가 없습니다.")
-
 		sentences_per_chunk = total_sentences // inquote_count
 
 		chunks = []
 		tmp = ''
 		count = 0
 		for text in splitted_texts:
+			if len(text.strip()) == 0:
+				continue
 			tmp += f'{text}.'
 			count += 1
 			if count % sentences_per_chunk == 0:
