@@ -41,8 +41,8 @@ class SmodinAutomation:
 			for one_setting in self.settings.result_list:
 				self.settings.add_log(f"{one_setting['name']} 작업의 자동화를 시작합니다.")
 				for one_file in one_setting['selected_files']:
-					self.select_options_free(actions, one_setting, one_file)
-					# self.select_options_paid(actions, one_setting, one_file)
+					# self.select_options_free(actions, one_setting, one_file)
+					self.select_options_paid(actions, one_setting, one_file)
 
 				self.driver.get('https://app.smodin.io/ko')
 
@@ -163,7 +163,7 @@ class SmodinAutomation:
 					WebDriverWait(self.driver, 10).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[8]'))
 					).click()
-					
+
 			if len(one_setting['write_style']) >= 1:
 				write_style_input = WebDriverWait(self.driver, 10).until(
 					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
@@ -283,9 +283,9 @@ class SmodinAutomation:
 		splitted_texts = content.split('.')
 		total_sentences = len(splitted_texts) - 1
 
-		one_file_full_name = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
+		matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
 
-		with open(rf'{one_file_full_name}', 'r', encoding='utf-8') as template_file:
+		with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
 			template_content = template_file.read()
 
 		inquote_count = template_content.count('<인용구')
