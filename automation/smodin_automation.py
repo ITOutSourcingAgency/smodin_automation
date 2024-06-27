@@ -279,10 +279,14 @@ class SmodinAutomation:
 		splitted_texts = content.split('.')
 		total_sentences = len(splitted_texts) - 1
 
-		matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
-
-		with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
-			template_content = template_file.read()
+		template_content = ''
+		if '.txt' not in os.path.basename(rf'{one_setting["template_folder"]}'):
+			matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
+			with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
+				template_content = template_file.read()
+		else:
+			with open(rf'{one_setting["template_folder"]}', 'r', encoding='utf-8') as template_file:
+				template_content = template_file.read()
 
 		inquote_count = template_content.count('<인용구')
 

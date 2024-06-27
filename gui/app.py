@@ -155,7 +155,7 @@ class App(CTk):
 		self.selected_files_entry = CTkEntry(self.file_frame, font=self.my_font, state='readonly', width = 270)
 		self.selected_files_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-		self.file_button = CTkButton(self.file_frame, text="파일 선택", command=lambda: self.open_files_dialog(self.selected_files_entry))
+		self.file_button = CTkButton(self.file_frame, text="파일 선택", command=lambda: self.open_files_dialog(self.selected_files_entry), width = 155)
 		self.file_button.grid(row=0, column=1, padx=10, pady=10)
 
 	def set_template_file_path(self):
@@ -163,16 +163,21 @@ class App(CTk):
 		self.template_file_frame.grid(row=1, column=1, sticky="ns", padx=10, pady=5)
 		self.template_file_frame.columnconfigure(0, weight=1)
 		self.template_file_frame.columnconfigure(1, weight=0)
+		self.template_file_frame.columnconfigure(2, weight=0)
 		self.template_file_frame.rowconfigure(0, weight=1)
 
 		self.template_file_label = CTkLabel(self.template_file_frame, text="템플릿 폴더 경로", font=self.my_font)
 		self.template_file_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
-		self.selected_template_folder_entry = CTkEntry(self.template_file_frame, font=self.my_font, state='readonly', width = 270)
-		self.selected_template_folder_entry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+		self.selected_template_folder_entry = CTkEntry(self.template_file_frame, font=self.my_font, state='readonly', width=270)
+		self.selected_template_folder_entry.grid(row=1, column=0, columnspan=3, padx=10, pady=5, sticky="w")
 
-		self.template_folder_button = CTkButton(self.template_file_frame, text="폴더 선택", command=lambda: self.open_folder_dialog(self.selected_template_folder_entry))
-		self.template_folder_button.grid(row=0, column=1, padx=10, pady=10)
+		self.template_file_button = CTkButton(self.template_file_frame, text="파일 선택", command=lambda: self.open_file_dialog(self.selected_template_folder_entry), width = 55)
+		self.template_file_button.grid(row=0, column=1, padx= 5, pady=10)
+
+		self.template_folder_button = CTkButton(self.template_file_frame, text="폴더 선택", command=lambda: self.open_folder_dialog(self.selected_template_folder_entry), width = 55)
+		self.template_folder_button.grid(row=0, column=2, padx=10, pady=10)
+
 
 	def open_file_dialog(self, entry):
 		file_selected = filedialog.askopenfilename()
@@ -264,9 +269,6 @@ class App(CTk):
 		repeat_num_width = 5
 
 		if self.selected_method == 1:
-			# if not self.write_style.get().strip():
-			# 	self.open_toplevel("작문 스타일을 작성해야 합니다.")
-			# 	return
 			task_details = {
 				"selected_method": 1,
 				"obj": self.obj.get(),
@@ -313,6 +315,8 @@ class App(CTk):
 			"id": self.id.get(),
 			"pw": self.pw.get()
 		})
+
+		# self.add_log(f"template = {template_folder}", "#87CEEB")
 
 		self.result_list.append(task_details)
 		for entry in [self.selected_files_entry, self.selected_template_folder_entry, self.name, self.repeat_num]:
