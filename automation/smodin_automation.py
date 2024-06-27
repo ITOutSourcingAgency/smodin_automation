@@ -95,15 +95,12 @@ class SmodinAutomation:
 				actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
 			else:
 				actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
-			time.sleep(3)
 
 			pw_submit_button = WebDriverWait(self.driver, 10).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[3]/div/div[1]/div/div/button'))
 			)
 			pw_submit_button.click()
 			login_window_handles = self.driver.window_handles
-
-			time.sleep(3)
 
 			if len(login_window_handles) > 1:
 				start_time = time.time()
@@ -113,10 +110,9 @@ class SmodinAutomation:
 					tmp_window_handles = self.driver.window_handles
 					if len(tmp_window_handles) == 1:
 						break
-					time.sleep(3)
+					time.sleep(2)
 
 			self.driver.switch_to.window(main_window)
-			time.sleep(5)
 			
 		except Exception as e:
 			print(f"An error occurred during the login process: {e}")
@@ -126,46 +122,46 @@ class SmodinAutomation:
 
 
 		if one_setting['selected_method'] == 0:
-			WebDriverWait(self.driver, 10).until(
+			WebDriverWait(self.driver, 20).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
 			).click()
 			match one_setting['strength']:
 				case 1:
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
 					).click()
 				case 2:
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
 					).click()
 				case 3:
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
 					).click()
 				case 4:
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
 					).click()
 		else:
-			WebDriverWait(self.driver, 10).until(
+			WebDriverWait(self.driver, 20).until(
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
 			).click()
 			match one_setting['obj']:
 				case '독창성':
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[4]'))
 					).click()
 				case 'AI탐지':
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[6]'))
 					).click()
 				case 'AI(추가의)':
-					WebDriverWait(self.driver, 10).until(
+					WebDriverWait(self.driver, 20).until(
 						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[8]'))
 					).click()
 
 			if len(one_setting['write_style']) >= 1:
-				write_style_input = WebDriverWait(self.driver, 10).until(
+				write_style_input = WebDriverWait(self.driver, 20).until(
 					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
 				)
 				write_style_input.click()
@@ -176,7 +172,7 @@ class SmodinAutomation:
 				else:
 					actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 		
-		text_input = WebDriverWait(self.driver, 10).until(
+		text_input = WebDriverWait(self.driver, 20).until(
 			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
 		)
 		text_input.click()
@@ -356,7 +352,6 @@ class SmodinAutomation:
 
 @staticmethod
 def get_script_path():
-
 	if getattr(sys, 'frozen', False):
 		script_path = os.path.dirname(sys.executable)
 	else:
