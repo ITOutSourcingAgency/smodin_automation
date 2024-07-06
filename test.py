@@ -1,26 +1,116 @@
-def modify_file_with_template(content):
-		splitted_texts = content.split('.')
-		total_sentences = len(splitted_texts) - 1
+import sys, os
 
-		chunks = []
-		tmp = ''
-		count = 0
-		for text in splitted_texts:
-			if len(text.strip()) == 0:
-				continue
-			tmp += f'{text}.'
-			count += 1
-			if count % 3 == 0:
-				chunks.append(tmp.strip())
-				tmp = ''
+def get_script_path():
+	if getattr(sys, 'frozen', False):
+		script_path = os.path.dirname(sys.executable)
+	else:
+		script_path = os.path.dirname(os.path.abspath(__file__))
+	return script_path
 
-		if tmp:
+def modify_file_with_template(content, index, one_file):
+	splitted_texts = content.split('.')
+	total_sentences = len(splitted_texts) - 1
+
+	template_content = ''
+	template_path = r'C:\Users\yoyob\OneDrive\Desktop\스모딘자동화\srcs\템플릿파일\1.txt'
+	# template_path = r'C:\Users\yoyob\OneDrive\Desktop\스모딘자동화\srcs\템플릿파일'
+	
+	if '.txt' not in os.path.basename(template_path):
+		matched_template_file = os.path.join(template_path, os.path.basename(rf'{one_file}'))
+		with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
+			template_content = template_file.read()
+	else:
+		with open(template_path, 'r', encoding='utf-8') as template_file:
+			template_content = template_file.read()
+
+	inquote_count = template_content.count('<인용구')
+
+	# 각 chunk의 문장 수 계산
+	sentences_per_chunk = total_sentences // inquote_count
+
+	chunks = []
+	tmp = ''
+	count = 0
+	for text in splitted_texts:
+		if len(text.strip()) == 0:
+			continue
+		tmp += f'{text}.'
+		count += 1
+		if count % sentences_per_chunk == 0:
 			chunks.append(tmp.strip())
-		print(f'chunks = {chunks}')
+			tmp = ''
 
-		chunks = [chunk.replace('..', '.') for chunk in chunks]
-		# print(f'chunks = {chunks}')
+	if tmp:
+		chunks.append(tmp.strip())
 
-con = f'안면윤곽은 성형수술을 통해 획기적으로 변화될 수 있는 부위 중 하나이다. 이와 관련하여 얼굴의 전체적인 모양과 비율은 눈, 코, 입과 같은 다른 특징에 따라 달라집니다. 하지만 수술만으로는 드라마틱한 변화를 가져올 수 없습니다. 이러한 요소들이 함께 작용하여 수술 후 얼굴의 조화를 이루기 때문입니다. 수술 후 : 수술 후 안경은 항상 필수품입니다. 칫솔질은 실제로 중요합니다. 그러나 칫솔질하는 동안 치약이 들어가는 것을 방지하기 위해 치약 부위에 절개를 만들지 않고 입의 청결을 유지하는 것이 어려울 수 있습니다. 입을 깨끗하게 유지할 수 있는 방법은 다음과 같습니다. 안면 윤곽 수술 후 적어도 일주일 동안 안경을 착용하는 것을 잊지 마십시오. 나사산이 없는 부위에서만 이를 닦으십시오. 취침 전, 기상 시, 식사 ​​후에는 입을 닫는 것을 잊지 마십시오. 머리 뒤에 약을 놓고 회전할 때마다 입 움직임을 수반하지 않고 자세를 바꾸십시오. 2단계: 당일 수술. 입을 다물기가 어려울 경우 손으로 입을 잡습니다. 병원에서 처방한 구강청정제를 모두 사용한 후 재치료를 받거나 약국에서 리스테린을 구입하여 물과 섞어서 복용하시면 됩니다. 입을 헹군 후에도 아프지 않거나 효과가 없으면 일반 물이나 소금물로 헹구십시오. 이빨 주위를 휘젓습니다. 일주일이 지나면 담당 의사의 지시에 따라 부드럽게 양치질을 시작합니다. 얼굴 외곽선 안쪽을 절개하여 입 안쪽에 절개선을 형성하고, 이를 통해 음식이 들어가 세균이 생존하여 상처 부위에 감염 및 염증이 발생하게 됩니다. 이 고려사항에 주의하세요. 전후 비교시술 : 안면윤곽 수술 후 안경을 착용하면 감염과 염증을 예방할 수 있습니다. 실이 녹을 때까지 수술 부위를 계속 감싸십시오. 감염이나 염증으로 인해 결과가 저하될 수 있습니다. 모든 수술은 수술 시작부터 안경 굽힘 수술 후 최소 일주일까지 사망을 포함하여 심각한 부작용을 초래할 수 있으므로 면밀히 모니터링해야 합니다. 이를 위해서는 모든 실이 녹을 때까지 지속적인 연삭이 필요하며 일반적으로 일주일 이내에 완료됩니다. 다음의 간단한 단계를 통해 자신감 넘치는 미소를 되찾으세요. 취침 전, 잠에서 깰 때, 식사 후에 태워보세요. 더 나은 배출을 위해 입이 아닌 머리를 움직여 입 안의 액체를 부드럽게 휘젓습니다. 입술을 단단히 밀봉하는 것이 어렵다면 손으로 도와주세요. 치실 사용을 피하고 칫솔질에만 집중하세요. 평일에는 병원 지침에 따라 꼼꼼하게 칫솔질을 하세요. 수술 후 첫 주 이후에는 부기를 줄이는 데 도움이 되도록 머리를 심장 높이보다 높게 유지하십시오. 동시에 매일의 의식을 수행하는 동안 자신감을 유지하십시오. 마무리 후 만족. 수술 후 1개월간은 눕거나 머리를 기울이는 자세를 삼가하세요. 수술 후 6시간 동안은 부드러운 음식만 섭취하십시오. 수술 후 2주 이내에는 맵거나 딱딱한 음식을 피하고 2개월 동안은 조심스럽게 드십시오. 3개월 동안 수술 부위에 압력을 가하거나 자극을 주지 않도록 주의하십시오. 수술 후 적절한 수분 수준과 구강 위생을 유지하는 것이 중요합니다. 감염이나 염증을 조장하지 않도록 베개 사용 방법에 유의하십시오.'
+	print(f'chunks count = {len(chunks)}, sentences_per_chunk = {sentences_per_chunk}, total_sentences = {total_sentences}')
 
-modify_file_with_template(con)
+	first_inquote_idx = template_content.find('<인용구')
+	remaining_chunks = chunks.copy()
+	search_start_idx = first_inquote_idx + 1
+	while remaining_chunks and search_start_idx < len(template_content):
+		next_inquote_idx = template_content.find('<인용구', search_start_idx)
+		if next_inquote_idx == -1:
+			break
+
+		chunk = remaining_chunks.pop(0)
+		template_content = template_content[:next_inquote_idx] + chunk + '\n\n' + template_content[next_inquote_idx:]
+		search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk))
+
+	# 남은 chunk를 마지막 <인용구> 밑에 추가
+	if remaining_chunks:
+		last_placeholder_idx = template_content.rfind('<인용구')
+		if last_placeholder_idx != -1:
+			end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
+
+			next_line_start_idx = end_of_last_inquote_idx
+			while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
+				next_line_start_idx += 1
+
+			next_line_end_idx = template_content.find('\n', next_line_start_idx)
+			if next_line_end_idx == -1:
+				next_line_end_idx = len(template_content)  # 파일의 끝까지 문장이 있는 경우
+
+			insertion_idx = 0
+
+			if next_line_start_idx < next_line_end_idx:
+				insertion_idx = template_content.find('\n', next_line_end_idx) + 1
+				if insertion_idx == 0:  # 개행을 찾지 못한 경우
+					insertion_idx = len(template_content)
+			else:
+				insertion_idx = end_of_last_inquote_idx
+
+			template_content = template_content[:insertion_idx] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[insertion_idx:]
+		else:
+			template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
+
+	print(template_content)
+	tmp_index = ''
+	if index == 0:
+		tmp_index = '.txt'
+	else:
+		tmp_index = f'_{index}.txt'        
+
+	output_origin_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
+	output_origin_directory = os.path.join(get_script_path(), 'srcs', '결과원본파일')
+	if not os.path.exists(output_origin_directory):
+		os.makedirs(output_origin_directory)
+	output_origin_file_path = rf'{os.path.join(output_origin_directory, output_origin_file_name)}'
+
+	with open(output_origin_file_path, 'w', encoding='utf-8') as modified_origin_file:
+		modified_origin_file.write(content)
+
+	output_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
+	output_directory = os.path.join(get_script_path(), 'srcs', '결과파일')
+	if not os.path.exists(output_directory):
+		os.makedirs(output_directory)
+	output_file_path = rf'{os.path.join(output_directory, output_file_name)}'
+
+	with open(output_file_path, 'w', encoding='utf-8') as modified_file:
+		modified_file.write(template_content)
+
+# 테스트 코드
+my_con = '오늘 성형수술을 통해 가장 큰 변화를 준 얼굴 윤곽에 대한 기본적인 정보와 수술 후 얼굴을 어떻게 수술할 것인가에 대해 이야기하려고 합니다. 얼굴의 전체적인 모양과 비율도 얼굴, 눈, 코, 입 등의 모양에 따라 다르지만 수술만으로는 극적인 변화를 가져올 수 없다. 1. 인식 변화수술 후에는 항상 안경을 잘 써야 해요. 물론 이를 닦는 것도 중요하지만 치약이 칫솔질 부위로 들어가지 않도록 절개하지 않아도 되고 입을 깨끗하게 유지하는 것도 어려울 수 있다. 구강 청결을 유지하기 위해 다음 레시피를 제공 : 얼굴 윤곽을 형성한 후 적어도 일주일 동안 안경을 부지런히 착용해야 합니다. 실이 없는 부분에만 이를 닦으세요. 잠자리에 들기 전에, 잠에서 깨어난 후에, 식사 후에 반드시 입을 다물어라. 약을 머리 뒤로 쳐서 입을 움직이지 말고 머리를 움직여라. 2. 당일 과정입을 다물기가 어렵다면 손으로 입을 막으세요. 병원에서 처방한 구강 세정제를 모두 사용한 후에는 재치료를 받거나 약국에서 리스테린을 구입해 물로 희석하면 된다. 입을 헹군 후 아프지 않거나 맞지 않으면 물이나 소금물로 치아를 헹궈낼 수 있다. 일주일 후, 그들은 병원의 지시에 따라 부드럽고 조심스럽게 이를 닦기 시작할 것이다. 얼굴의 윤곽을 보면 입 안쪽에서 절개하여 입 안쪽에 절개선을 형성합니다. 입 안으로 들어가는 음식 통로는 다양한 세균이 살 수 있게 해 감염과 상처 염증을 유발할 수 있다. 3. 전후 비교 과정이를 위해 안면윤곽형 수술을 받은 경우 위에 안경을 써야 감염과 염증을 예방할 수 있다. 수술 부위는 실이 녹을 때까지 계속 감쌀 수 있다. 감염과 염증은 결과에 나쁜 영향을 미칠 수 있고 심각한 부작용을 일으킬 수 있기 때문에 수행되는 모든 수술은 철저히 통제되어야 한다. 안경은 안경 벤딩 수술 후 최소 일주일 동안 착용해야 합니다. 이것은 실이 완전히 녹을 때까지 계속 분쇄할 필요가 있다. 4. 자신감 회복자기 전에, 아침에 일어나면, 식사 후에 태워야 해요. 콘센트 액체를 더 좋게 만들기 위해 입을 움직이지 않고 머리를 움직이세요. 입을 잘 다물지 못하면, 손으로 입술을 막고 봉인을 하세요. 치실 없이 칫솔질만 조심스럽게 할 수 있다. 평일부터 병원 지시에 따라 양치질을 시작하세요. 수술 일주일 후, 머리는 심장보다 더 높을 것이고 붓기를 줄일 것이다. 5. 완성도에 따른 만족감수술 후 한 달 동안은 그들은 엎드리거나 고개를 숙이지 않았다. 수술 후에, 그들은 6시간 동안 부드러운 음식만 먹을 것이다. 수술 후 2주 동안은 자극적이거나 딱딱한 음식을 피하고 2개월 동안은 조심해야 한다. 3개월 동안 작동 부위를 누르거나 자극하지 않도록 주의해야 한다. 수술 후 적절한 수분과 구강 건강을 유지하는 것이 중요하다. 베개는 주의해야 감염과 염증을 예방할 수 있다.'
+my_file = r'C:\Users\yoyob\OneDrive\Desktop\스모딘자동화\srcs\수정할파일\1.txt'
+
+modify_file_with_template(my_con, 0, my_file)

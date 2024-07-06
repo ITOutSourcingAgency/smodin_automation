@@ -1,4 +1,4 @@
-import time, clipboard, platform, os, sys
+import time, clipboard, platform, os, sys, random
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -43,6 +43,7 @@ class SmodinAutomation:
 				for one_file in one_setting['selected_files']:
 					# self.select_options_free(actions, one_setting, one_file)
 					self.select_options_paid(actions, one_setting, one_file)
+					time.sleep(random.uniform(10, 20))
 
 				self.driver.get('https://app.smodin.io/ko')
 
@@ -121,6 +122,15 @@ class SmodinAutomation:
 			except Exception as e:
 				self.settings.add_log(f"로그인 도중에 에러가 발생했습니다.", "red")
 				retries += 1
+
+				all_windows = self.driver.window_handles
+				for window in all_windows:
+					if window != main_window:
+						self.driver.switch_to.window(window)
+						self.driver.close()
+
+				self.driver.switch_to.window(main_window)
+
 				if retries < max_retries:
 					self.settings.add_log(f"로그인을 다시 시도합니다.")
 				else:
@@ -199,13 +209,30 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
 			)
 			rewrite_submit_button.click()
-			
-			result_copy_button = WebDriverWait(self.driver, 120).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'))
+
+			result_copy_button_or_alternate_xpath = WebDriverWait(self.driver, 120).until(
+				self.element_to_be_clickable_or_present(
+					(By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'),
+					(By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/p')
+				)
 			)
-			result_copy_button.click()
-			self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
+			if result_copy_button_or_alternate_xpath.tag_name == 'button':
+				result_copy_button_or_alternate_xpath.click()
+				self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
+			else:
+				self.select_options_paid(actions, one_setting, one_file)
 	
+	def element_to_be_clickable_or_present(locator1, locator2):
+		def _predicate(driver):
+			elements1 = driver.find_elements(*locator1)
+			if elements1:
+				return elements1[0]
+			elements2 = driver.find_elements(*locator2)
+			if elements2:
+				return elements2[0]
+			return False
+		return _predicate
+
 	def select_options_free(self, actions, one_setting, one_file):
 		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
 
@@ -299,6 +326,7 @@ class SmodinAutomation:
 
 		inquote_count = template_content.count('<인용구')
 
+		# 각 chunk의 문장 수 계산
 		sentences_per_chunk = total_sentences // inquote_count
 
 		chunks = []
@@ -319,53 +347,48 @@ class SmodinAutomation:
 		first_inquote_idx = template_content.find('<인용구')
 		remaining_chunks = chunks.copy()
 		search_start_idx = first_inquote_idx + 1
-		while remaining_chunks:
+		while remaining_chunks and search_start_idx < len(template_content):
 			next_inquote_idx = template_content.find('<인용구', search_start_idx)
 			if next_inquote_idx == -1:
 				break
 
 			chunk = remaining_chunks.pop(0)
-
 			template_content = template_content[:next_inquote_idx] + chunk + '\n\n' + template_content[next_inquote_idx:]
 			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk))
 
-			if remaining_chunks:
-				last_placeholder_idx = template_content.rfind('<인용구')
-				if last_placeholder_idx != -1:
-					# 마지막 <인용구> 태그의 끝 부분(>) 인덱스를 찾음
-					end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
 
-					# 파일 끝까지 탐색하여 공백이나 개행이 아닌 부분까지 인덱스를 증가시킴
-					next_line_start_idx = end_of_last_inquote_idx
-					while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
-						next_line_start_idx += 1
+		# 남은 chunk를 마지막 <인용구> 밑에 추가
+		if remaining_chunks:
+			last_placeholder_idx = template_content.rfind('<인용구')
+			if last_placeholder_idx != -1:
+				end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
 
-					# <인용구> 다음 문장의 개행을 찾음
-					next_line_end_idx = template_content.find('\n', next_line_start_idx)
-					if next_line_end_idx == -1:
-						next_line_end_idx = len(template_content)  # 파일의 끝까지 문장이 있는 경우
+				next_line_start_idx = end_of_last_inquote_idx
+				while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
+					next_line_start_idx += 1
 
-					# 개행이 있다면 그 다음 위치에 삽입 인덱스를 설정, 개행이 없다면 end_of_last_inquote_idx를 삽입 인덱스로 설정
-					if next_line_start_idx < next_line_end_idx:
-						insertion_idx = template_content.find('\n', next_line_end_idx) + 1
-						if insertion_idx == 0:  # 개행을 찾지 못한 경우
-							insertion_idx = len(template_content)
-					else:
-						insertion_idx = end_of_last_inquote_idx
+				next_line_end_idx = template_content.find('\n', next_line_start_idx)
+				if next_line_end_idx == -1:
+					next_line_end_idx = len(template_content)  # 파일의 끝까지 문장이 있는 경우
 
-					# remaining_chunks를 삽입 인덱스 위치에 추가
-					template_content = template_content[:insertion_idx] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[insertion_idx:]
+				insertion_idx = 0
+
+				if next_line_start_idx < next_line_end_idx:
+					insertion_idx = template_content.find('\n', next_line_end_idx) + 1
+					if insertion_idx == 0:  # 개행을 찾지 못한 경우
+						insertion_idx = len(template_content)
 				else:
-					# <인용구> 태그가 없으면 remaining_chunks를 템플릿 끝에 추가
-					template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
+					insertion_idx = end_of_last_inquote_idx
 
-
+				template_content = template_content[:insertion_idx] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[insertion_idx:]
+			else:
+				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
 
 		tmp_index = ''
 		if index == 0:
 			tmp_index = '.txt'
 		else:
-			tmp_index = f'_{index}.txt'		
+			tmp_index = f'_{index}.txt'        
 
 		output_origin_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
 		output_origin_directory = os.path.join(get_script_path(), 'srcs', '결과원본파일')
@@ -386,7 +409,6 @@ class SmodinAutomation:
 		with open(output_file_path, 'w', encoding='utf-8') as modified_file:
 			modified_file.write(template_content)
 		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
-
 
 @staticmethod
 def get_script_path():
