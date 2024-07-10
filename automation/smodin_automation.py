@@ -8,6 +8,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
 
+class TemplateFileNotFoundException(Exception):
+    pass
+
 class SmodinAutomation:
 	def __init__(self, settings):
 		self.settings = settings
@@ -46,7 +49,8 @@ class SmodinAutomation:
 					time.sleep(random.uniform(10, 20))
 
 				self.driver.get('https://app.smodin.io/ko')
-
+		except TemplateFileNotFoundException as e:
+			self.settings.add_log(str(e), "red")
 		except Exception as e:
 			self.settings.add_log("프로그램을 강제 종료 하셨거나 오류가 발생했습니다.", "red")
 		finally:
@@ -209,17 +213,18 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
 			)
 			rewrite_submit_button.click()
+			self.settings.add_log("재창조 버튼 클릭 완료")
 
-			result_copy_button_or_alternate_xpath = WebDriverWait(self.driver, 120).until(
-				self.element_to_be_clickable_or_present(
-					(By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'),
-					(By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/p')
-				)
-			)
-			if result_copy_button_or_alternate_xpath.tag_name == 'button':
-				result_copy_button_or_alternate_xpath.click()
+			try:
+				WebDriverWait(self.driver, 40).until(
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'))
+				).click()
+				self.settings.add_log("파일 처리 시작")
 				self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
-			else:
+			except TemplateFileNotFoundException:
+				raise TemplateFileNotFoundException(f"{os.path.basename(rf'{one_file}')} 파일에 대한 템플릿 파일이 존재하지 않습니다.")
+			except Exception as e:
+				self.settings.add_log(f"글 변환 실패, 재시도")
 				self.select_options_paid(actions, one_setting, one_file)
 	
 	def element_to_be_clickable_or_present(locator1, locator2):
@@ -304,25 +309,34 @@ class SmodinAutomation:
 				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
 			)
 			rewrite_submit_button.click()
-			
-			result_copy_button = WebDriverWait(self.driver, 120).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[5]/div/div[2]/button[4]'))
-			)
-			result_copy_button.click()
-			self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
+			self.settings.add_log("재창조 버튼 클릭 완료")
+
+			try:
+				WebDriverWait(self.driver, 40).until(
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div[2]/main/div/form/div/div[5]/div/div[2]/button[4]'))
+				).click()
+				self.settings.add_log("파일 처리 시작")
+				self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
+
+			except Exception as e:
+				self.settings.add_log(f"글 변환 실패")
+				self.select_options_free(actions, one_setting, one_file)
 
 	def modify_file_with_template(self, content, one_setting, index, one_file):
 		splitted_texts = content.split('.')
 		total_sentences = len(splitted_texts) - 1
-
 		template_content = ''
-		if '.txt' not in os.path.basename(rf'{one_setting["template_folder"]}'):
-			matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
-			with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
-				template_content = template_file.read()
-		else:
-			with open(rf'{one_setting["template_folder"]}', 'r', encoding='utf-8') as template_file:
-				template_content = template_file.read()
+
+		try:
+			if '.txt' not in os.path.basename(rf'{one_setting["template_folder"]}'):
+				matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
+				with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
+					template_content = template_file.read()
+			else:
+				with open(rf'{one_setting["template_folder"]}', 'r', encoding='utf-8') as template_file:
+					template_content = template_file.read()
+		except FileNotFoundError:
+			raise TemplateFileNotFoundException()
 
 		inquote_count = template_content.count('<인용구')
 
