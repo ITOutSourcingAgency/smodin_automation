@@ -370,30 +370,16 @@ class SmodinAutomation:
 			template_content = template_content[:next_inquote_idx] + chunk + '\n\n' + template_content[next_inquote_idx:]
 			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk))
 
-
-		# 남은 chunk를 마지막 <인용구> 밑에 추가
+		# 남은 chunk를 마지막 <인용구> 또는 <랜덤슬라이드> 태그 밑에 추가
 		if remaining_chunks:
-			last_placeholder_idx = template_content.rfind('<인용구')
+			last_placeholder_idx = max(template_content.rfind('<인용구'), template_content.rfind('<랜덤슬라이드'))
 			if last_placeholder_idx != -1:
 				end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
-
 				next_line_start_idx = end_of_last_inquote_idx
 				while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
 					next_line_start_idx += 1
 
-				next_line_end_idx = template_content.find('\n', next_line_start_idx)
-				if next_line_end_idx == -1:
-					next_line_end_idx = len(template_content)  # 파일의 끝까지 문장이 있는 경우
-
-				insertion_idx = 0
-
-				if next_line_start_idx < next_line_end_idx:
-					insertion_idx = template_content.find('\n', next_line_end_idx) + 1
-					if insertion_idx == 0:  # 개행을 찾지 못한 경우
-						insertion_idx = len(template_content)
-				else:
-					insertion_idx = end_of_last_inquote_idx
-
+				insertion_idx = next_line_start_idx
 				template_content = template_content[:insertion_idx] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[insertion_idx:]
 			else:
 				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
@@ -423,6 +409,7 @@ class SmodinAutomation:
 		with open(output_file_path, 'w', encoding='utf-8') as modified_file:
 			modified_file.write(template_content)
 		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
+
 
 @staticmethod
 def get_script_path():
