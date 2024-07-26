@@ -372,15 +372,16 @@ class SmodinAutomation:
 
 		# 남은 chunk를 마지막 <인용구> 또는 <랜덤슬라이드> 태그 밑에 추가
 		if remaining_chunks:
-			last_placeholder_idx = max(template_content.rfind('<인용구'), template_content.rfind('<랜덤슬라이드'))
+			last_placeholder_idx = max(template_content.rfind('<인용구'), template_content.rfind('}>\n<랜덤슬라이드'))
 			if last_placeholder_idx != -1:
+				last_placeholder_idx += 3
 				end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
 				next_line_start_idx = end_of_last_inquote_idx
 				while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
 					next_line_start_idx += 1
 
 				insertion_idx = next_line_start_idx
-				template_content = template_content[:insertion_idx] + '\n\n' + '\n\n'.join(remaining_chunks).strip() + template_content[insertion_idx:]
+				template_content = template_content[:insertion_idx] + '\n\n'.join(remaining_chunks).strip() + '\n\n' + template_content[insertion_idx:]
 			else:
 				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
 
@@ -406,7 +407,7 @@ class SmodinAutomation:
 			os.makedirs(output_directory)
 		output_file_path = rf'{os.path.join(output_directory, output_file_name)}'
 
-		with open(output_file_path, 'w', encoding='utf-8') as modified_file:
+		with open(output_file_path, mode='w', encoding='utf-8') as modified_file:
 			modified_file.write(template_content)
 		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
 
