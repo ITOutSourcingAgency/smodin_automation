@@ -316,8 +316,6 @@ class App(CTk):
 			"pw": self.pw.get()
 		})
 
-		# self.add_log(f"template = {template_folder}", "#87CEEB")
-
 		self.result_list.append(task_details)
 		for entry in [self.selected_files_entry, self.selected_template_folder_entry, self.name, self.repeat_num]:
 			self.clear_entry(entry)
@@ -371,6 +369,7 @@ class App(CTk):
 			self.open_toplevel("로그인 정보를 입력하세요.")
 		elif DEV or auth():
 			self.add_log("사용자가 확인되었습니다.", "#87CEEB")
+			self.submit_button.configure(state='disabled')
 			smodin_auto = sa.SmodinAutomation(self)
 			automation_thread = threading.Thread(target=smodin_auto.run)
 			automation_thread.start()

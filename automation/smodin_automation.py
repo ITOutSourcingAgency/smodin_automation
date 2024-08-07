@@ -55,6 +55,8 @@ class SmodinAutomation:
 			self.settings.add_log("프로그램을 강제 종료 하셨거나 오류가 발생했습니다.", "red")
 		finally:
 			self.settings.add_log("자동화 작업을 종료합니다.", "grey")
+			self.settings.submit_button.configure(state='normal')
+
 			self.driver.quit()
 
 	def login(self, actions):
