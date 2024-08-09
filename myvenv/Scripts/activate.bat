@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\yoyob\OneDrive\Desktop\projects\smodin_automation\myvenv
+set VIRTUAL_ENV=C:\Users\백용민\Desktop\외주\smodin_automation\myvenv
 
 if not defined PROMPT set PROMPT=$P$G
 

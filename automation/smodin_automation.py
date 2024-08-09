@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.action_chains import ActionChains
 import undetected_chromedriver as uc
+from webdriver_manager.chrome import ChromeDriverManager
 
 class TemplateFileNotFoundException(Exception):
     pass
@@ -16,6 +17,7 @@ class SmodinAutomation:
 		self.settings = settings
 
 	def run(self):
+		driver_path = ChromeDriverManager().install()
 		chrome_options = webdriver.ChromeOptions()
 		
 		# Chrome automation detection prevention
@@ -26,7 +28,7 @@ class SmodinAutomation:
 		chrome_options.add_argument("--disable-password-manager-reauthentication")
 		# chrome_options.add_argument("--incognito")
 
-		self.driver = uc.Chrome(options=chrome_options)
+		self.driver = uc.Chrome(options=chrome_options, driver_executable_path=driver_path)
 
 		self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
 			"source": """

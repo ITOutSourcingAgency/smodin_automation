@@ -369,10 +369,15 @@ class App(CTk):
 			self.open_toplevel("로그인 정보를 입력하세요.")
 		elif DEV or auth():
 			self.add_log("사용자가 확인되었습니다.", "#87CEEB")
-			self.submit_button.configure(state='disabled')
-			smodin_auto = sa.SmodinAutomation(self)
-			automation_thread = threading.Thread(target=smodin_auto.run)
-			automation_thread.start()
+			try:
+				self.submit_button.configure(state='disabled')
+				smodin_auto = sa.SmodinAutomation(self)
+				automation_thread = threading.Thread(target=smodin_auto.run)
+				automation_thread.start()
+			except Exception as e:
+				self.add_log(f"the error == {e}")
+				time.sleep(100)
+				
 		else:
 			self.open_toplevel("승인되지 않은 사용자입니다.")
 			time.sleep(5)
