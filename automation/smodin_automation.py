@@ -17,7 +17,7 @@ class SmodinAutomation:
 		self.settings = settings
 
 	def run(self):
-		driver_path = ChromeDriverManager().install()
+		# driver_path = ChromeDriverManager().install()
 		chrome_options = webdriver.ChromeOptions()
 		
 		# Chrome automation detection prevention
@@ -28,7 +28,7 @@ class SmodinAutomation:
 		chrome_options.add_argument("--disable-password-manager-reauthentication")
 		# chrome_options.add_argument("--incognito")
 
-		self.driver = uc.Chrome(options=chrome_options, driver_executable_path=driver_path)
+		self.driver = uc.Chrome(options=chrome_options)
 
 		self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
 			"source": """

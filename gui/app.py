@@ -377,13 +377,8 @@ class App(CTk):
 				automation_thread.start()
 			except Exception as e:
 				self.add_log(f"the error == {e}")
-				time.sleep(100)
-				
 		else:
 			self.open_toplevel("승인되지 않은 사용자입니다.")
-			time.sleep(5)
-			sys.exit()
-		
 
 	def create_log(self):
 		self.log_frame = CTkScrollableFrame(self)

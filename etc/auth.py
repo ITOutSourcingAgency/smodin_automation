@@ -4,6 +4,7 @@ import uuid
 from etc import AUTH_NAMESPACE
 
 def auth(username, password):
+	print(f'username = {username}, password = {password}')
 	mac = get_mac_address()
 	res = requests.post('https://tellurium.ejae8319.workers.dev/api/users/auth', json={
 		"project": AUTH_NAMESPACE,
@@ -11,6 +12,7 @@ def auth(username, password):
 		"password": password,
 		"code": mac,
 	})
+	print(res)
 	return res.ok
 
 def get_mac_address():
