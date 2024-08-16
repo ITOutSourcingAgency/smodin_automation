@@ -4,6 +4,7 @@ import tkinter as tk
 import automation.smodin_automation as sa
 import os, json, time, sys, subprocess
 
+from gui.auth_top import AuthToplevelView
 from etc.auth import auth
 from etc import DEV
 from customtkinter import *
@@ -367,7 +368,7 @@ class App(CTk):
 			self.open_toplevel("작업을 등록해주세요.")
 		elif not self.id.get() or not self.pw.get():
 			self.open_toplevel("로그인 정보를 입력하세요.")
-		elif DEV or auth():
+		elif DEV or self.open_auth_toplevel():
 			self.add_log("사용자가 확인되었습니다.", "#87CEEB")
 			try:
 				self.submit_button.configure(state='disabled')
@@ -411,6 +412,16 @@ class App(CTk):
 				break
 		print(self.result_list)
 		self.render_result_list()
+
+	def open_auth_toplevel(self):
+		self.auth_success = False
+		self.toplevel_auth_window = AuthToplevelView(self)
+		self.wait_window(self.toplevel_auth_window)
+		return self.auth_success
+
+	def auth_callback(self, success):
+		self.auth_success = success
+		self.toplevel_auth_window.destroy()
 
 class ToplevelWindow(customtkinter.CTkToplevel):
 	def __init__(self, message, parent, *args, **kwargs):
