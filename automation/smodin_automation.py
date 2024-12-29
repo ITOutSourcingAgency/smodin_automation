@@ -17,7 +17,7 @@ class SmodinAutomation:
 		self.settings = settings
 
 	def run(self):
-		driver_path = ChromeDriverManager().install()
+		# driver_path = ChromeDriverManager().install()
 		chrome_options = webdriver.ChromeOptions()
 		
 		# Chrome automation detection prevention
@@ -28,7 +28,8 @@ class SmodinAutomation:
 		chrome_options.add_argument("--disable-password-manager-reauthentication")
 		# chrome_options.add_argument("--incognito")
 
-		self.driver = uc.Chrome(options=chrome_options, driver_executable_path=driver_path)
+		# self.driver = uc.Chrome(options=chrome_options, driver_executable_path=driver_path)
+		self.driver = uc.Chrome(options=chrome_options)
 
 		self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
 			"source": """
@@ -145,62 +146,66 @@ class SmodinAutomation:
 					self.settings.add_log(f"로그인이 지속해서 실패하고 있습니다. 프로그램을 종료하고 다시 실행해주세요.", "blue")
 
 	def select_options_paid(self, actions, one_setting, one_file):
-		self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
+		try:
+			self.driver.get('https://app.smodin.io/ko/%E1%84%86%E1%85%AE%E1%84%85%E1%85%AD%E1%84%85%E1%85%A9%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8%E1%84%8B%E1%85%A5%E1%84%85%E1%85%A9%E1%84%90%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%E1%84%8C%E1%85%A1%E1%84%83%E1%85%A9%E1%86%BC%E1%84%87%E1%85%A5%E1%86%AB%E1%84%8B%E1%85%A7%E1%86%A8')
 
 
-		if one_setting['selected_method'] == 0:
-			WebDriverWait(self.driver, 20).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[1]'))
-			).click()
-			match one_setting['strength']:
-				case 1:
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[3]'))
-					).click()
-				case 2:
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[5]'))
-					).click()
-				case 3:
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[7]'))
-					).click()
-				case 4:
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/span/span[9]'))
-					).click()
-		else:
-			WebDriverWait(self.driver, 20).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/button[2]'))
-			).click()
-			match one_setting['obj']:
-				case '독창성':
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[4]'))
-					).click()
-				case 'AI탐지':
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[6]'))
-					).click()
-				case 'AI(추가의)':
-					WebDriverWait(self.driver, 20).until(
-						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div/span/span[8]'))
-					).click()
-
-			if len(one_setting['write_style']) >= 1:
-				write_style_input = WebDriverWait(self.driver, 20).until(
-					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
-				)
-				write_style_input.click()
-				clipboard.copy(one_setting['write_style'])
+			if one_setting['selected_method'] == 0:
+				WebDriverWait(self.driver, 20).until(
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/div[1]/div/button[1]'))
+				).click()
+				match one_setting['strength']:
+					case 1:
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/span/span[4]'))
+						).click()
+					case 2:
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/span/span[6]'))
+						).click()
+					case 3:
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/span/span[8]'))
+						).click()
+					case 4:
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/span/span[10]'))
+						).click()
+			else:
+				WebDriverWait(self.driver, 20).until(
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[1]/div/div[2]/div/div[1]/div/button[2]'))
+				).click()
 				
-				if platform.system() == 'Darwin':  
-					actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-				else:
-					actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+				match one_setting['obj']:
+					case '독창성':
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/div/span/span[4]/span'))
+						).click()
+					case 'AI탐지':
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/div/span/span[6]/span'))
+						).click()
+					case 'AI(추가의)':
+						WebDriverWait(self.driver, 20).until(
+							EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[1]/div/div/span/span[8]/span'))
+						).click()
+
+				if len(one_setting['write_style']) >= 1:
+					write_style_input = WebDriverWait(self.driver, 20).until(
+						EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[1]/div/div[3]/div/div[2]/div/div/input'))
+					)
+					write_style_input.click()
+					clipboard.copy(one_setting['write_style'])
+					
+					if platform.system() == 'Darwin':  
+						actions.key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+					else:
+						actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+		except Exception as e:
+			print(f"An error occurred: {e}")
 		
 		text_input = WebDriverWait(self.driver, 20).until(
-			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[3]/div/div/div/div[2]/div/div/div/textarea[1]'))
+			EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[3]/div/div/div/div[1]/div/div[2]/div/div/div/textarea[1]'))
 		)
 		text_input.click()
 
@@ -214,7 +219,7 @@ class SmodinAutomation:
 
 		for i in range(int(one_setting['repeat_num'])):
 			rewrite_submit_button = WebDriverWait(self.driver, 60).until(
-				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/button'))
+				EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[1]/div/div[2]/div[2]/div/div/div/button'))
 			)
 			rewrite_submit_button.click()
 			self.settings.add_log("재창조 버튼 클릭 완료")
@@ -230,6 +235,7 @@ class SmodinAutomation:
 			except Exception as e:
 				self.settings.add_log(f"글 변환 실패, 재시도")
 				self.select_options_paid(actions, one_setting, one_file)
+	
 	
 	def element_to_be_clickable_or_present(locator1, locator2):
 		def _predicate(driver):
