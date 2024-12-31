@@ -226,7 +226,7 @@ class SmodinAutomation:
 
 			try:
 				WebDriverWait(self.driver, 40).until(
-					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[2]/button[4]'))
+					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[3]/button[4]'))
 				).click()
 				self.settings.add_log("파일 처리 시작")
 				self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
