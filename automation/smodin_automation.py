@@ -224,10 +224,21 @@ class SmodinAutomation:
 			rewrite_submit_button.click()
 			self.settings.add_log("재창조 버튼 클릭 완료")
 
+			time.sleep(5)
 			try:
-				WebDriverWait(self.driver, 40).until(
-					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[3]/button[4]'))
-				).click()
+				print('복사 버튼 누름름')
+				# copy_button = WebDriverWait(self.driver, 20).until(
+				# 	# EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[3]/button[4]'))
+				# 	EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[3]/div/main/div/form/div/div[5]/div/div[3]/button[4]'))
+				# )
+				copy_button = WebDriverWait(self.driver, 20).until(
+					EC.element_to_be_clickable((
+						By.XPATH, "//button[contains(@class, 'MuiButtonBase-root') and contains(@class, 'MuiFab-root')][.//p[text()='복사']]"
+					))
+				)
+
+				copy_button.click()
+				print('파일 처리 시작작')
 				self.settings.add_log("파일 처리 시작")
 				self.modify_file_with_template(clipboard.paste(), one_setting, i, one_file)
 			except TemplateFileNotFoundException:
@@ -331,95 +342,114 @@ class SmodinAutomation:
 			except Exception as e:
 				self.settings.add_log(f"글 변환 실패")
 				self.select_options_free(actions, one_setting, one_file)
-
 	def modify_file_with_template(self, content, one_setting, index, one_file):
 		splitted_texts = content.split('.')
 		total_sentences = len(splitted_texts) - 1
 		template_content = ''
 
 		try:
-			if '.txt' not in os.path.basename(rf'{one_setting["template_folder"]}'):
-				matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
-				with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
-					template_content = template_file.read()
-			else:
-				with open(rf'{one_setting["template_folder"]}', 'r', encoding='utf-8') as template_file:
-					template_content = template_file.read()
-		except FileNotFoundError:
-			raise TemplateFileNotFoundException()
+			try:
+				if '.txt' not in os.path.basename(rf'{one_setting["template_folder"]}'):
+					matched_template_file = os.path.join(rf'{one_setting["template_folder"]}', os.path.basename(rf'{one_file}'))
+					with open(rf'{matched_template_file}', 'r', encoding='utf-8') as template_file:
+						template_content = template_file.read()
+						print(f"Template loaded from file: {matched_template_file}")
+				else:
+					with open(rf'{one_setting["template_folder"]}', 'r', encoding='utf-8') as template_file:
+						template_content = template_file.read()
+						print(f"Template loaded from folder: {one_setting['template_folder']}")
+			except FileNotFoundError as e:
+				print(f"Template file not found: {e}")
+				raise TemplateFileNotFoundException()
 
-		inquote_count = template_content.count('<인용구')
+			inquote_count = template_content.count('<인용구')
+			print(f"Number of <인용구> placeholders: {inquote_count}")
 
-		# 각 chunk의 문장 수 계산
-		sentences_per_chunk = total_sentences // inquote_count
+			sentences_per_chunk = total_sentences // inquote_count
+			print(f"Sentences per chunk: {sentences_per_chunk}")
 
-		chunks = []
-		tmp = ''
-		count = 0
-		for text in splitted_texts:
-			if len(text.strip()) == 0:
-				continue
-			tmp += f'{text}.'
-			count += 1
-			if count % sentences_per_chunk == 0:
+			chunks = []
+			tmp = ''
+			count = 0
+			for text in splitted_texts:
+				if len(text.strip()) == 0:
+					continue
+				tmp += f'{text}.'
+				count += 1
+				if count % sentences_per_chunk == 0:
+					chunks.append(tmp.strip())
+					tmp = ''
+
+			if tmp:
 				chunks.append(tmp.strip())
-				tmp = ''
 
-		if tmp:
-			chunks.append(tmp.strip())
+			print(f"Generated chunks: {chunks}")
 
-		first_inquote_idx = template_content.find('<인용구')
-		remaining_chunks = chunks.copy()
-		search_start_idx = first_inquote_idx + 1
-		while remaining_chunks and search_start_idx < len(template_content):
-			next_inquote_idx = template_content.find('<인용구', search_start_idx)
-			if next_inquote_idx == -1:
-				break
+			first_inquote_idx = template_content.find('<인용구')
+			remaining_chunks = chunks.copy()
+			search_start_idx = first_inquote_idx + 1
+			while remaining_chunks and search_start_idx < len(template_content):
+				next_inquote_idx = template_content.find('<인용구', search_start_idx)
+				if next_inquote_idx == -1:
+					break
 
-			chunk = remaining_chunks.pop(0)
-			template_content = template_content[:next_inquote_idx] + chunk + '\n\n' + template_content[next_inquote_idx:]
-			search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk))
+				chunk = remaining_chunks.pop(0)
+				print(f"Inserting chunk at position {next_inquote_idx}: {chunk}")
+				template_content = template_content[:next_inquote_idx] + chunk + '\n\n' + template_content[next_inquote_idx:]
+				search_start_idx = template_content.find('>\n', next_inquote_idx + len(chunk))
 
-		# 남은 chunk를 마지막 <인용구> 또는 <랜덤슬라이드> 태그 밑에 추가
-		if remaining_chunks:
-			last_placeholder_idx = max(template_content.rfind('<인용구'), template_content.rfind('}>\n<랜덤슬라이드'))
-			if last_placeholder_idx != -1:
-				last_placeholder_idx += 3
-				end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
-				next_line_start_idx = end_of_last_inquote_idx
-				while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
-					next_line_start_idx += 1
+			if remaining_chunks:
+				last_placeholder_idx = max(template_content.rfind('<인용구'), template_content.rfind('}>\n<랜덤슬라이드'))
+				if last_placeholder_idx != -1:
+					last_placeholder_idx += 3
+					end_of_last_inquote_idx = template_content.find('>', last_placeholder_idx) + 1
+					next_line_start_idx = end_of_last_inquote_idx
+					while next_line_start_idx < len(template_content) and template_content[next_line_start_idx] in ['\n', ' ']:
+						next_line_start_idx += 1
 
-				insertion_idx = next_line_start_idx
-				template_content = template_content[:insertion_idx] + '\n\n'.join(remaining_chunks).strip() + '\n\n' + template_content[insertion_idx:]
+					insertion_idx = next_line_start_idx
+					print(f"Inserting remaining chunks at position {insertion_idx}: {remaining_chunks}")
+					template_content = template_content[:insertion_idx] + '\n\n'.join(remaining_chunks).strip() + '\n\n' + template_content[insertion_idx:]
+				else:
+					print("Appending remaining chunks at the end of the template")
+					template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
+
+			tmp_index = ''
+			if index == 0:
+				tmp_index = '.txt'
 			else:
-				template_content += '\n\n' + '\n\n'.join(remaining_chunks).strip()
+				tmp_index = f'_{index}.txt'
 
-		tmp_index = ''
-		if index == 0:
-			tmp_index = '.txt'
-		else:
-			tmp_index = f'_{index}.txt'        
+			output_origin_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
+			output_origin_directory = os.path.join(get_script_path(), 'srcs', '결과원본파일')
+			if not os.path.exists(output_origin_directory):
+				os.makedirs(output_origin_directory)
+				print(f"Created directory: {output_origin_directory}")
+			output_origin_file_path = rf'{os.path.join(output_origin_directory, output_origin_file_name)}'
 
-		output_origin_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
-		output_origin_directory = os.path.join(get_script_path(), 'srcs', '결과원본파일')
-		if not os.path.exists(output_origin_directory):
-			os.makedirs(output_origin_directory)
-		output_origin_file_path = rf'{os.path.join(output_origin_directory, output_origin_file_name)}'
+			with open(output_origin_file_path, 'w', encoding='utf-8') as modified_origin_file:
+				modified_origin_file.write(content)
+				print(f"Saved original file content to: {output_origin_file_path}")
 
-		with open(output_origin_file_path, 'w', encoding='utf-8') as modified_origin_file:
-			modified_origin_file.write(content)
-		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물의 원본이 {output_origin_file_name}의 이름으로 저장되었습니다.", "green")
+			self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물의 원본이 {output_origin_file_name}의 이름으로 저장되었습니다.", "green")
 
-		output_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
-		output_directory = os.path.join(get_script_path(), 'srcs', '결과파일')
-		if not os.path.exists(output_directory):
-			os.makedirs(output_directory)
-		output_file_path = rf'{os.path.join(output_directory, output_file_name)}'
+			output_file_name = os.path.basename(rf'{one_file}').replace('.txt', tmp_index)
+			output_directory = os.path.join(get_script_path(), 'srcs', '결과파일')
+			if not os.path.exists(output_directory):
+				os.makedirs(output_directory)
+				print(f"Created directory: {output_directory}")
+			output_file_path = rf'{os.path.join(output_directory, output_file_name)}'
 
-		with open(output_file_path, mode='w', encoding='utf-8') as modified_file:
-			modified_file.write(template_content)
-		self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
+			with open(output_file_path, mode='w', encoding='utf-8') as modified_file:
+				modified_file.write(template_content)
+				print(f"Saved modified content to: {output_file_path}")
+
+			self.settings.add_log(f"{one_setting['name']} 작업의 자동화 결과물이 {output_file_name}의 이름으로 저장되었습니다.", "green")
+
+		except Exception as e:
+			print(f"An error occurred: {e}")
+			raise
+
 
 
 @staticmethod
