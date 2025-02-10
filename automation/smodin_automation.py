@@ -83,6 +83,7 @@ class SmodinAutomation:
 					if window != main_window:
 						self.driver.switch_to.window(window)
 						break
+				login_window_handles = self.get_visible_windows()
 
 				id_input = WebDriverWait(self.driver, timeout=10).until(
 					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[2]/div/div/div[1]/form/span/section/div/div/div[1]/div/div[1]/div/div[1]/input'))
@@ -115,7 +116,6 @@ class SmodinAutomation:
 					EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div[1]/div[2]/c-wiz/div/div[3]/div/div[1]/div/div/button'))
 				)
 				pw_submit_button.click()
-				login_window_handles = self.get_visible_windows()
 				print(f"Initial visible window count: {len(login_window_handles)}")
 				print(f"3. Current visible window handles: {login_window_handles}")
 
@@ -125,14 +125,16 @@ class SmodinAutomation:
 					max_wait_time = 300
 
 					while time.time() - start_time < max_wait_time:
-						tmp_window_handles = self.get_visible_windows()
+						tmp_window_handles = self.driver.window_handles
 						print(f'tmp_window_handles = {tmp_window_handles}')
 						
-						if len(tmp_window_handles) == 1:
+						if len(tmp_window_handles) <= 2:
 							break
 						time.sleep(1)
-
+				time.sleep(2)
 				self.driver.switch_to.window(main_window)
+				time.sleep(2)
+
 				break  # 성공적으로 로그인하면 루프 종료
 				
 			except Exception as e:
@@ -154,27 +156,21 @@ class SmodinAutomation:
 
 
 	def get_visible_windows(self):
-		"""
-		현재 보이는 창만 필터링하는 함수.
-		- `about:blank` 같은 빈 창은 제외
-		- 타이틀이 없거나 정상적으로 로드되지 않은 창은 제외
-		"""
+
 		visible_windows = []
-		try:
-			# 현재 모든 창의 핸들 가져오기
-			window_handles = self.driver.window_handles
+		original_window = self.driver.current_window_handle
 
-			# CDP 명령으로 창의 URL을 확인
-			for handle in window_handles:
-				res = self.driver.execute_cdp_cmd("Page.getFrameTree", {})
-				for frame in res.get("frameTree", {}).get("childFrames", []):
-					frame_url = frame.get("frame", {}).get("url", "")
-					if frame_url and "about:blank" not in frame_url:
-						visible_windows.append(handle)
+		for handle in self.driver.window_handles:
+			try:
+				self.driver.switch_to.window(handle)
+				time.sleep(1)  # Allow time for the window to load
 
-		except Exception as e:
-			print(f"Error retrieving visible windows: {e}")
+				if "about:blank" not in self.driver.current_url and self.driver.title.strip():
+					visible_windows.append(handle)
+			except Exception as e:
+				print(f"Error switching to window {handle}: {e}")
 
+		self.driver.switch_to.window(original_window)  # Return to the original window
 		return visible_windows
 
 
